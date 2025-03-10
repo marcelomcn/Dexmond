@@ -33,6 +33,8 @@ interface ChainInfo {
   estimatedTime: string;
 }
 
+import React, { useState, useEffect } from "react";
+
 const supportedChains: ChainInfo[] = [
   { id: 1, name: "Ethereum", nativeToken: "ETH", estimatedTime: "15 mins" },
   { id: 137, name: "Polygon", nativeToken: "MATIC", estimatedTime: "5 mins" },

@@ -1,9 +1,9 @@
 
 import React from "react";
-import { Link } from "wouter";
-import { WalletConnect } from "@/components/dex/WalletConnect";
-import { CrossChainSwap } from "@/components/dex/CrossChainSwap";
-import { Portfolio } from "@/components/dex/Portfolio";
+import Link from "next/link";
+import { WalletConnect } from "../components/WalletConnect";
+import { CrossChainBridge } from "../components/dex/CrossChainBridge";
+import { CrossChainSwap } from "../components/dex/CrossChainSwap";
 
 export default function CrossChainPage() {
   return (
@@ -32,15 +32,10 @@ export default function CrossChainPage() {
             </div>
             <WalletConnect />
           </header>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2">
-              <CrossChainSwap />
-            </div>
-            
-            <div className="lg:col-span-1">
-              <Portfolio />
-            </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <CrossChainBridge />
+            <CrossChainSwap />
           </div>
         </div>
       </div>
