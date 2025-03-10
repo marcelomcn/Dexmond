@@ -1,9 +1,10 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Card } from "@/components/ui/card";
 
 export function PriceChart() {
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -11,16 +12,16 @@ export function PriceChart() {
     // Initialize chart using CSP-safe configuration
     const initChart = async () => {
       try {
-        if (!window.LightweightCharts) {
-          console.error("Chart library not loaded");
-          return;
+        // Wait for the chart library to load
+        while (!window.LightweightCharts) {
+          await new Promise(resolve => setTimeout(resolve, 100));
         }
 
         const chart = window.LightweightCharts.createChart(containerRef.current!, {
           width: containerRef.current!.clientWidth,
           height: 400,
           layout: {
-            background: { color: 'transparent' },
+            background: { type: 'solid', color: 'transparent' },
             textColor: 'rgba(255, 255, 255, 0.9)',
           },
           grid: {
@@ -45,7 +46,8 @@ export function PriceChart() {
         chartRef.current = chart;
 
         // Update data using CSP-safe methods
-        window.dexmond.chart.updateChartData(candlestickSeries);
+        await window.dexmond.chart.updateChartData(candlestickSeries);
+        setIsLoading(false);
 
         // Handle window resize
         const handleResize = () => {
@@ -60,6 +62,7 @@ export function PriceChart() {
         return () => window.removeEventListener('resize', handleResize);
       } catch (error) {
         console.error("Failed to initialize chart:", error);
+        setIsLoading(false);
       }
     };
 
@@ -74,7 +77,16 @@ export function PriceChart() {
 
   return (
     <Card className="p-4">
-      <div ref={containerRef} className="w-full h-[400px]" />
+      {isLoading && (
+        <div className="flex items-center justify-center h-[400px]">
+          <div className="loading-animation" />
+        </div>
+      )}
+      <div 
+        ref={containerRef} 
+        className="w-full h-[400px]"
+        style={{ display: isLoading ? 'none' : 'block' }}
+      />
     </Card>
   );
 }
