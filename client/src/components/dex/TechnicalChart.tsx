@@ -8,7 +8,7 @@ interface TechnicalChartProps {
   tokenSymbol: string;
 }
 
-export function TechnicalChart({ tokenSymbol }: TechnicalChartProps) {
+function TechnicalChart({ tokenSymbol }: TechnicalChartProps) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const [timeframe, setTimeframe] = useState<string>('1D');
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -140,4 +140,4 @@ export function TechnicalChart({ tokenSymbol }: TechnicalChartProps) {
   );
 }
 
-export { TechnicalChart };
+export default TechnicalChart;
