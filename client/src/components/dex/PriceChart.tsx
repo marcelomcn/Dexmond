@@ -12,9 +12,17 @@ export function PriceChart() {
 
     const initChart = async () => {
       try {
-        // Wait for the chart library to load
-        while (!window.LightweightCharts) {
+        setIsLoading(true);
+
+        // Wait for the chart library to load with a timeout
+        let attempts = 0;
+        while (!window.LightweightCharts && attempts < 50) {
           await new Promise(resolve => setTimeout(resolve, 100));
+          attempts++;
+        }
+
+        if (!window.LightweightCharts) {
+          throw new Error("Chart library failed to load");
         }
 
         const chart = window.LightweightCharts.createChart(containerRef.current!, {
@@ -47,7 +55,12 @@ export function PriceChart() {
 
         // Update data using CSP-safe methods
         await window.dexmond.chart.updateChartData(candlestickSeries);
+
+        // Fit content to view
+        chart.timeScale().fitContent();
+
         setIsLoading(false);
+        setError(null);
 
         // Handle window resize
         const handleResize = () => {
