@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Add Content Security Policy header -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src *; img-src 'self' data: /api/*;">
+    <title>Dexmond</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Inline loading animation styles -->
+    <style>
+        /* Loading animation styles */
+        .initial-loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s ease-out;
+        }
+
+        .initial-loading.hide {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .initial-loading-logo {
+            font-size: 32px;
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 30px;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #007bff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        .loading-text {
+            margin-top: 20px;
+            color: white;
+            font-size: 18px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .pulse {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 0.6;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.05);
+            }
+            100% {
+                opacity: 0.6;
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+<body>
+  <!-- Initial Loading Screen - Add this directly to the HTML -->
+  <div class="initial-loading" id="initialLoading">
+    <div class="initial-loading-logo pulse">Dexmond</div>
+    <div class="loading-spinner"></div>
+    <div class="loading-text">Initializing...</div>
+  </div>
+
+  <div class="container">
+    <header class="header">
+      <div class="logo">Dexmond</div>
+      <div class="wallet-connect" id="walletConnect">
+        Connect Wallet
+        <span class="wallet-status" id="walletStatus"></span>
+      </div>
+    </header>
+    
+    <main class="main">
+      <div class="swap-container">
+        <div class="swap-header">
+          <div class="swap-title">Swap</div>
+          <div class="settings-icon" id="settingsButton">⚙️</div>
+        </div>
+        
+        <div class="token-input">
+          <div class="token-input-header">
+            <div>You Pay</div>
+            <div id="fromBalance">Balance: 0.00</div>
+          </div>
+          <div class="token-input-amount">
+            <input type="number" class="amount-input" id="fromAmount" placeholder="0.0">
+            <div class="token-select" id="fromTokenSelect">
+              <img class="token-logo" id="fromTokenLogo" src="/api/placeholder/24/24" alt="Token" onerror="this.src='/api/placeholder/24/24'">
+              <span id="fromTokenSymbol">ETH</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="swap-arrow">
+          <div class="swap-arrow-button" id="swapTokens">
+            ↓
+          </div>
+        </div>
+        
+        <div class="token-input">
+          <div class="token-input-header">
+            <div>You Receive</div>
+            <div id="toBalance">Balance: 0.00</div>
+          </div>
+          <div class="token-input-amount">
+            <input type="number" class="amount-input" id="toAmount" placeholder="0.0" readonly>
+            <div class="token-select" id="toTokenSelect">
+              <img class="token-logo" id="toTokenLogo" src="/api/placeholder/24/24" alt="Token" onerror="this.src='/api/placeholder/24/24'">
+              <span id="toTokenSymbol">USDC</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="swap-details">
+          <div class="detail-row">
+            <div>Rate</div>
+            <div id="rate">1 ETH = 0 USDC</div>
+          </div>
+          <div class="detail-row">
+            <div>Price Impact</div>
+            <div id="priceImpact">0.00%</div>
+          </div>
+          <div class="detail-row">
+            <div>Minimum Received</div>
+            <div id="minimumReceived">0 USDC</div>
+          </div>
+          <div class="detail-row">
+            <div>Network Fee</div>
+            <div id="networkFee">~$0.00</div>
+          </div>
+        </div>
+        
+        <div class="swap-button-container">
+          <button class="swap-button" id="swapButton" disabled>Connect Wallet</button>
+          <div class="error-message" id="errorMessage"></div>
+        </div>
+      </div>
+      
+      <div class="market-info">
+        <div class="market-header">Market</div>
+        <div class="market-tabs">
+          <div class="market-tab active" data-tab="chart">Price Chart</div>
+          <div class="market-tab" data-tab="orderbook">Order Book</div>
+        </div>
+        
+        <div class="price-chart" id="priceChart">
+          <div class="chart-placeholder">Chart will load after selecting tokens</div>
+        </div>
+        
+        <div class="order-book" id="orderBook" style="display: none;">
+          <div class="order-header">
+            <div>Price</div>
+            <div>Amount</div>
+            <div>Total</div>
+          </div>
+          <div id="orderRows">
+            <!-- Order rows will be generated dynamically -->
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  
+  <!-- Token Selection Modal -->
+  <div class="modal" id="tokenModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">Select Token</div>
+        <button class="close-button" id="closeModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="token-list" id="tokenList">
+          <!-- Token items will be generated dynamically -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="modal" id="settingsModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">Settings</div>
+        <button class="close-button" id="closeSettingsModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="settings-item">
+          <div class="settings-label">Slippage Tolerance</div>
+          <div class="slippage-options">
+            <button class="slippage-option" data-value="0.5">0.5%</button>
+            <button class="slippage-option active" data-value="1.0">1.0%</button>
+            <button class="slippage-option" data-value="2.0">2.0%</button>
+            <div class="custom-slippage">
+              <input type="number" id="customSlippage" placeholder="Custom">
+              <span>%</span>
+            </div>
+          </div>
+        </div>
+        <div class="settings-item">
+          <div class="settings-label">Transaction Deadline</div>
+          <div class="deadline-input">
+            <input type="number" id="deadlineMinutes" value="20" min="1">
+            <span>minutes</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <div class="tx-status" id="txStatus">Waiting for confirmation...</div>
+  </div>
+  
+  <!-- Main application scripts -->
+  <!-- Load web3 and ethers library from CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.8.1/web3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lightweight-charts/3.8.0/lightweight-charts.standalone.production.js"></script>
+  
+  <!-- Add the new ethereum-utils.js before other scripts -->
+  <script src="js/ethereum-utils.js"></script>
+  
+  <!-- Load application scripts -->
+  <script src="js/tokens.js"></script>
+  <script src="js/wallet-connect.js"></script>
+  <script src="js/swap.js"></script>
+  <script src="js/chart.js"></script>
+  <script src="js/orderbook.js"></script>
+  <script src="js/app.js"></script>
+  
+  <!-- Initialize error handlers and loading screen animation -->
+  <script>
+    // Loading animation - use function reference instead of setTimeout with string
+    const hideLoadingScreen = function() {
+      const loadingScreen = document.getElementById('initialLoading');
+      if (loadingScreen) {
+        loadingScreen.classList.add('hide');
+        
+        // Inner timeout also uses function reference
+        setTimeout(function() {
+          if (loadingScreen.parentNode) {
+            loadingScreen.parentNode.removeChild(loadingScreen);
+          }
+        }, 500);
+      }
+    };
+    
+    // Use function reference in setTimeout
+    setTimeout(hideLoadingScreen, 3000);
+
+    // Apply fallback to all token logos
+    document.addEventListener('DOMContentLoaded', function() {
+      // Set error handlers for token logos
+      document.querySelectorAll('.token-logo').forEach(logo => {
+        logo.onerror = function() {
+          this.src = '/api/placeholder/24/24';
+        };
+      });
+      
+      // Ensure modal close buttons work properly
+      document.getElementById('closeModal').addEventListener('click', function() {
+        document.getElementById('tokenModal').style.display = 'none';
+      });
+      
+      document.getElementById('closeSettingsModal').addEventListener('click', function() {
+        document.getElementById('settingsModal').style.display = 'none';
+      });
+    });
+  </script>
+</body>
+</html>
