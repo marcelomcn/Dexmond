@@ -44,25 +44,64 @@ const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
 export function Portfolio() {
   const { address } = useAccount();
   const [activeTab, setActiveTab] = useState<"positions" | "history" | "analytics">("positions");
+  const [positions, setPositions] = useState<Position[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Mock data - in production, this would be fetched from your backend/blockchain
-  const positions: Position[] = [
-    {
-      token: "ETH",
-      amount: "2.5",
-      value: 4500,
-      pnl: 500,
-      pnlPercentage: 12.5,
-    },
-    {
-      token: "USDC",
-      amount: "5000",
-      value: 5000,
-      pnl: 0,
-      pnlPercentage: 0,
-    },
-    // Add more positions...
-  ];
+  // Fetch real wallet balances
+  useEffect(() => {
+    const fetchWalletBalances = async () => {
+      if (!address || !window.ethereum) {
+        setPositions([]);
+        setIsLoading(false);
+        return;
+      }
+
+      setIsLoading(true);
+      try {
+        // Get ETH balance
+        const ethBalanceHex = await window.ethereum.request({
+          method: 'eth_getBalance',
+          params: [address, 'latest']
+        });
+        
+        // Convert hex to decimal and then to ETH units
+        const ethBalance = parseInt(ethBalanceHex, 16) / 1e18;
+        
+        // Get current ETH price (in a real app, you'd fetch this from an API)
+        // For now, we'll use a placeholder price of $2000
+        const ethPrice = 2000;
+        const ethValue = ethBalance * ethPrice;
+        
+        // In a real app, you'd fetch token balances using contract calls
+        // and get accurate pricing data from an API
+        
+        const realPositions: Position[] = [];
+        
+        // Only add ETH to positions if balance is greater than 0
+        if (ethBalance > 0) {
+          realPositions.push({
+            token: "ETH",
+            amount: ethBalance.toFixed(4),
+            value: ethValue,
+            pnl: 0, // In a real app, calculate this from historical data
+            pnlPercentage: 0, // In a real app, calculate this from historical data
+          });
+        }
+        
+        // Set positions with real data
+        setPositions(realPositions);
+      } catch (error) {
+        console.error("Error fetching wallet balances:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchWalletBalances();
+    // Refresh every minute
+    const interval = setInterval(fetchWalletBalances, 60000);
+    return () => clearInterval(interval);
+  }, [address]);
 
   const trades: Trade[] = [
     {
@@ -109,6 +148,26 @@ export function Portfolio() {
       <Card className="p-6">
         <div className="text-center text-muted-foreground">
           Please connect your wallet to view portfolio
+        </div>
+      </Card>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <Card className="p-6">
+        <div className="text-center text-muted-foreground">
+          Loading wallet balances...
+        </div>
+      </Card>
+    );
+  }
+
+  if (positions.length === 0) {
+    return (
+      <Card className="p-6">
+        <div className="text-center text-muted-foreground">
+          No assets found in this wallet
         </div>
       </Card>
     );
