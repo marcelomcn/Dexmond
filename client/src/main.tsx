@@ -6,8 +6,9 @@ import "./lib/dexmond";
 // Initialize lightweight-charts with error handling
 const script = document.createElement('script');
 script.src = 'https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js';
-script.async = true;
+script.async = false; 
 script.crossOrigin = "anonymous";
+script.integrity = "sha384-"; 
 script.onerror = () => {
   console.error('Failed to load chart library');
 };
