@@ -1,3 +1,4 @@
+import React from "react";
 import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -20,19 +21,21 @@ function Router() {
 
 function App() {
   return (
-    <WagmiProvider config={wagmiConfig}>
-      <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider 
-          theme={darkTheme({
-            accentColor: '#a855f7', 
-            borderRadius: 'medium'
-          })}
-        >
-          <Router />
-          <Toaster />
-        </RainbowKitProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
+    <React.StrictMode>
+      <WagmiProvider config={wagmiConfig}>
+        <QueryClientProvider client={queryClient}>
+          <RainbowKitProvider 
+            theme={darkTheme({
+              accentColor: '#a855f7', 
+              borderRadius: 'medium'
+            })}
+          >
+            <Router />
+            <Toaster />
+          </RainbowKitProvider>
+        </QueryClientProvider>
+      </WagmiProvider>
+    </React.StrictMode>
   );
 }
 
