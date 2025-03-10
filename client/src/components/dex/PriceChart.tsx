@@ -27,6 +27,14 @@ export function PriceChart() {
           throw new Error("Chart library failed to load");
         }
 
+        // Clear previous chart if it exists
+        if (chartRef.current) {
+          chartRef.current.remove();
+        }
+
+        // Clear container
+        containerRef.current.innerHTML = '';
+
         console.log("Chart library loaded, creating chart...");
 
         const chart = window.LightweightCharts.createChart(containerRef.current!, {
@@ -95,6 +103,7 @@ export function PriceChart() {
     return () => {
       if (chartRef.current) {
         chartRef.current.remove();
+        chartRef.current = null;
       }
     };
   }, []);
