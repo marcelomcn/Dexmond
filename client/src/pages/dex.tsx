@@ -49,13 +49,16 @@ export default function DexPage() {
               </h1>
               <div className="hidden md:flex gap-4 ml-8">
                 <Link href="/">
-                  <a className="text-sm text-primary">Trade</a>
+                  <span className="text-sm text-primary cursor-pointer">Trade</span>
                 </Link>
                 <Link href="/pools">
-                  <a className="text-sm text-muted-foreground hover:text-primary">Pools</a>
+                  <span className="text-sm text-muted-foreground hover:text-primary cursor-pointer">Pools</span>
                 </Link>
                 <Link href="/analytics">
-                  <a className="text-sm text-muted-foreground hover:text-primary">Analytics</a>
+                  <span className="text-sm text-muted-foreground hover:text-primary cursor-pointer">Analytics</span>
+                </Link>
+                <Link href="/cross-chain">
+                  <span className="text-sm text-muted-foreground hover:text-primary cursor-pointer">Cross-Chain</span>
                 </Link>
               </div>
             </div>

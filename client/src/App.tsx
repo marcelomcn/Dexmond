@@ -18,6 +18,7 @@ function Router() {
       <Route path="/" component={DexPage} />
       <Route path="/pools" component={PoolsPage} />
       <Route path="/analytics" component={AnalyticsPage} />
+      <Route path="/cross-chain" component={React.lazy(() => import('./pages/cross-chain'))} />
       <Route component={NotFound} />
     </Switch>
   );
