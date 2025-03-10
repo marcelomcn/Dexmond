@@ -5,6 +5,7 @@ import { PriceChart } from "@/components/dex/PriceChart";
 import { WalletConnect } from "@/components/dex/WalletConnect";
 import { MarketStats } from "@/components/dex/MarketStats";
 import { RecentTransactions } from "@/components/dex/RecentTransactions";
+import { AdvancedTrading } from "@/components/dex/AdvancedTrading";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -12,7 +13,6 @@ export default function DexPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Show loading screen for 2 seconds
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 2000);
@@ -59,7 +59,18 @@ export default function DexPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <div className="lg:col-span-4 space-y-6">
               <Card className="p-6 bg-opacity-20 backdrop-blur-lg">
-                <TokenSwap />
+                <Tabs defaultValue="swap">
+                  <TabsList className="w-full">
+                    <TabsTrigger value="swap" className="flex-1">Quick Swap</TabsTrigger>
+                    <TabsTrigger value="advanced" className="flex-1">Advanced</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="swap">
+                    <TokenSwap />
+                  </TabsContent>
+                  <TabsContent value="advanced">
+                    <AdvancedTrading />
+                  </TabsContent>
+                </Tabs>
               </Card>
               <RecentTransactions />
             </div>
