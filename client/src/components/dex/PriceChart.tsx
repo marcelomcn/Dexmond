@@ -29,37 +29,30 @@ export function PriceChart() {
   const [chartData, setChartData] = useState<any>(null);
 
   useEffect(() => {
+    const generateMockPriceData = () => {
+      const labels = [];
+      const prices = [];
+      const basePrice = 1800; // Example ETH price
+
+      for (let i = 30; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        labels.push(date.toLocaleDateString());
+
+        // Add some random variation to the price
+        const randomVariation = (Math.random() - 0.5) * 0.02; // ±1% variation
+        prices.push(basePrice * (1 + randomVariation));
+      }
+
+      return { labels, prices };
+    };
+
     const fetchPriceData = async () => {
       try {
         setIsLoading(true);
 
-        // Fetch price data from 0x API
-        const response = await fetch('https://api.0x.org/swap/v1/prices?sellToken=ETH&buyToken=DAI', {
-          headers: {
-            '0x-api-key': '0xb5c7fc99-385a-4a7f-948c-01236858baa6'
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch price data');
-        }
-
-        const data = await response.json();
-
-        // Generate price data points for the last 30 days
-        const labels = [];
-        const prices = [];
-        const basePrice = parseFloat(data.price);
-
-        for (let i = 30; i >= 0; i--) {
-          const date = new Date();
-          date.setDate(date.getDate() - i);
-          labels.push(date.toLocaleDateString());
-
-          // Add some random variation to the price
-          const randomVariation = (Math.random() - 0.5) * 0.02; // ±1% variation
-          prices.push(basePrice * (1 + randomVariation));
-        }
+        // Generate mock data for now since API has CORS issues
+        const { labels, prices } = generateMockPriceData();
 
         setChartData({
           labels,
