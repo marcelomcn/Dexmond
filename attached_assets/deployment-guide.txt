@@ -1,0 +1,133 @@
+# Dexmond Deployment and Integration Guide
+
+This guide explains how to deploy the Dexmond smart contracts to collect a 0.3% fee on all transactions made through your DEX interface.
+
+## Overview
+
+Dexmond is a set of smart contracts that implement an Automated Market Maker (AMM) DEX similar to Uniswap V2, but with the following key difference:
+- **Custom Fee Management**: The 0.3% fee is collected in a dedicated fee collector contract that allows you to withdraw the accumulated fees.
+
+## Smart Contracts Architecture
+
+The system consists of the following contracts:
+
+1. **DexmondFactory**: Creates and manages trading pairs.
+2. **DexmondPair**: Implements the AMM logic for a specific token pair.
+3. **DexmondRouter**: Provides user-friendly functions for swapping and liquidity provision.
+4. **DexmondFeeCollector**: Collects and manages the 0.3% trading fees.
+
+## Deployment Steps
+
+### Step 1: Deploy WETH (if needed)
+
+If you're deploying on a testnet or mainnet, you can use the existing WETH contract. Otherwise, deploy your own WETH contract.
+
+```solidity
+// WETH address for Ethereum Mainnet
+address constant WETH_MAINNET = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
+```
+
+### Step 2: Deploy DexmondFactory
+
+```javascript
+// Deploy the factory with your address as feeToSetter
+const factory = await DexmondFactory.deploy(yourAddress);
+await factory.deployed();
+console.log("Factory deployed to:", factory.address);
+```
+
+### Step 3: Deploy DexmondRouter
+
+```javascript
+// Deploy the router with factory and WETH addresses
+const router = await DexmondRouter.deploy(factory.address, WETH_ADDRESS);
+await router.deployed();
+console.log("Router deployed to:", router.address);
+```
+
+### Step 4: Deploy DexmondFeeCollector
+
+```javascript
+// Deploy the fee collector with factory and WETH addresses
+const feeCollector = await DexmondFeeCollector.deploy(factory.address, WETH_ADDRESS);
+await feeCollector.deployed();
+console.log("Fee Collector deployed to:", feeCollector.address);
+```
+
+### Step 5: Set the Fee Collector as the Fee Recipient
+
+```javascript
+// Set the fee collector as the fee recipient in the factory
+await factory.setFeeTo(feeCollector.address);
+console.log("Fee collector set as fee recipient");
+```
+
+## Integration with Your Frontend
+
+### Update Router and Factory References
+
+In your frontend code, update the router and factory references to use the newly deployed contracts instead of Uniswap's. This involves:
+
+1. Update the router address in `swap.js`:
+
+```javascript
+// Router addresses for different DEXes
+const ROUTER_ADDRESSES = {
+  dexmond: "YOUR_ROUTER_ADDRESS_HERE", // Add your router address here
+  uniswapV2: "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+  sushiswap: "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F",
+};
+
+// Set default router to Dexmond
+let routerAddress = ROUTER_ADDRESSES.dexmond;
+```
+
+2. Use the Dexmond factory for pair creation:
+
+```javascript
+// Factory address
+const FACTORY_ADDRESS = "YOUR_FACTORY_ADDRESS_HERE";
+```
+
+### Fee Collection
+
+To collect fees, you (as the owner of the DexmondFeeCollector) can call:
+
+```javascript
+// Claim fees from a specific pair
+await feeCollector.claimFees(pairAddress, tokenAddress, recipientAddress);
+
+// Or claim all fees across all pairs
+await feeCollector.claimAllFees(tokenAddress, recipientAddress);
+```
+
+## Fee Mechanism Details
+
+1. **Fee Collection**: When trades occur, 0.3% of the trading volume is collected as LP fees.
+2. **Protocol Fee**: Of these LP fees, 1/6th (or 0.05% of the total trade) goes to the protocol.
+3. **Fee Accrual**: Fees accrue as LP tokens in the fee collector contract.
+4. **Fee Withdrawal**: The owner can withdraw these fees in the form of underlying tokens.
+
+## Testing
+
+Test all functionality including:
+1. Creating pairs
+2. Adding and removing liquidity
+3. Swapping tokens
+4. Fee accrual and collection
+
+## Security Considerations
+
+1. **Admin Keys**: The factory's `feeToSetter` and the fee collector's `owner` are powerful admin roles. Keep these private keys secure.
+2. **Contract Verification**: Verify all contracts on Etherscan after deployment for transparency.
+3. **Fee Collector**: Only the owner can withdraw fees, so ensure you maintain access to this account.
+
+## Fee Management Strategies
+
+1. **Regular Collection**: Set up a schedule to collect fees regularly to avoid accumulating large amounts in the contract.
+2. **Token Diversification**: You may want to collect fees in stablecoins or ETH rather than volatile tokens.
+3. **Transparency**: Consider being transparent about fee usage to build user trust.
+
+---
+
+You now have a fully functional DEX with a 0.3% fee mechanism that you control. Users interacting with your interface will pay this fee, which you can collect as the owner of the fee collector contract.
