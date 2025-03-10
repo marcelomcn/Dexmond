@@ -8,6 +8,7 @@ import { RecentTransactions } from "@/components/dex/RecentTransactions";
 import { AdvancedTrading } from "@/components/dex/AdvancedTrading";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Link } from "wouter";
 
 export default function DexPage() {
   const [isLoading, setIsLoading] = useState(true);
@@ -46,9 +47,15 @@ export default function DexPage() {
                 Dexmond
               </h1>
               <div className="hidden md:flex gap-4 ml-8">
-                <a href="#" className="text-sm text-muted-foreground hover:text-primary">Trade</a>
-                <a href="#" className="text-sm text-muted-foreground hover:text-primary">Pools</a>
-                <a href="#" className="text-sm text-muted-foreground hover:text-primary">Analytics</a>
+                <Link href="/">
+                  <a className="text-sm text-primary">Trade</a>
+                </Link>
+                <Link href="/pools">
+                  <a className="text-sm text-muted-foreground hover:text-primary">Pools</a>
+                </Link>
+                <Link href="/analytics">
+                  <a className="text-sm text-muted-foreground hover:text-primary">Analytics</a>
+                </Link>
               </div>
             </div>
             <WalletConnect />
@@ -77,7 +84,7 @@ export default function DexPage() {
 
             <div className="lg:col-span-8">
               <Card className="p-6 bg-opacity-20 backdrop-blur-lg">
-                <Tabs defaultValue="chart" className="w-full">
+                <Tabs defaultValue="chart">
                   <TabsList className="bg-opacity-20">
                     <TabsTrigger value="chart">Price Chart</TabsTrigger>
                     <TabsTrigger value="orderbook">Order Book</TabsTrigger>

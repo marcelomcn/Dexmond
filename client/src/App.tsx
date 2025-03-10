@@ -5,6 +5,8 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import NotFound from "@/pages/not-found";
 import DexPage from "@/pages/dex";
+import PoolsPage from "@/pages/pools";
+import AnalyticsPage from "@/pages/analytics";
 import { WagmiProvider } from 'wagmi';
 import { RainbowKitProvider, darkTheme } from '@rainbow-me/rainbowkit';
 import { wagmiConfig } from '@/lib/wagmi';
@@ -14,6 +16,8 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={DexPage} />
+      <Route path="/pools" component={PoolsPage} />
+      <Route path="/analytics" component={AnalyticsPage} />
       <Route component={NotFound} />
     </Switch>
   );
