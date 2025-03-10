@@ -7,6 +7,7 @@ export interface Token {
   decimals: number;
   chainId: number;
   logoURI?: string;
+  category?: 'defi' | 'gaming' | 'metaverse' | 'l2' | 'governance' | 'stablecoin';
 }
 
 // Major tokens across different chains
@@ -32,6 +33,7 @@ export const tokens: Token[] = [
     address: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
     decimals: 6,
     chainId: 1,
+    category: 'stablecoin',
   },
   {
     symbol: "USDC",
@@ -39,6 +41,7 @@ export const tokens: Token[] = [
     address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
     decimals: 6,
     chainId: 1,
+    category: 'stablecoin',
   },
   {
     symbol: "DAI",
@@ -46,6 +49,7 @@ export const tokens: Token[] = [
     address: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
     decimals: 18,
     chainId: 1,
+    category: 'stablecoin',
   },
   {
     symbol: "WBTC",
@@ -60,6 +64,7 @@ export const tokens: Token[] = [
     address: "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
     decimals: 18,
     chainId: 1,
+    category: 'defi',
   },
   {
     symbol: "LINK",
@@ -68,12 +73,15 @@ export const tokens: Token[] = [
     decimals: 18,
     chainId: 1,
   },
+  // Add 450+ more tokens here...
+  // Popular DeFi Protocols
   {
     symbol: "AAVE",
     name: "Aave",
     address: "0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9",
     decimals: 18,
     chainId: 1,
+    category: 'defi',
   },
   {
     symbol: "MKR",
@@ -81,6 +89,7 @@ export const tokens: Token[] = [
     address: "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2",
     decimals: 18,
     chainId: 1,
+    category: 'governance',
   },
   {
     symbol: "SNX",
@@ -88,6 +97,81 @@ export const tokens: Token[] = [
     address: "0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F",
     decimals: 18,
     chainId: 1,
+    category: 'defi',
+  },
+  // Layer 2 Tokens
+  {
+    symbol: "OP",
+    name: "Optimism",
+    address: "0x4200000000000000000000000000000000000042",
+    decimals: 18,
+    chainId: 10,
+    category: 'l2',
+  },
+  {
+    symbol: "ARB",
+    name: "Arbitrum",
+    address: "0x912CE59144191C1204E64559FE8253a0e49E6548",
+    decimals: 18,
+    chainId: 42161,
+    category: 'l2',
+  },
+  // Liquid Staking Tokens
+  {
+    symbol: "stETH",
+    name: "Lido Staked ETH",
+    address: "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84",
+    decimals: 18,
+    chainId: 1,
+  },
+  {
+    symbol: "rETH",
+    name: "Rocket Pool ETH",
+    address: "0xae78736Cd615f374D3085123A210448E74Fc6393",
+    decimals: 18,
+    chainId: 1,
+  },
+  // GameFi Tokens
+  {
+    symbol: "SAND",
+    name: "The Sandbox",
+    address: "0x3845badAde8e6dFF049820680d1F14bD3903a5d0",
+    decimals: 18,
+    chainId: 1,
+    category: 'gaming',
+  },
+  {
+    symbol: "AXS",
+    name: "Axie Infinity",
+    address: "0xBB0E17EF65F82Ab018d8EDd776e8DD940327B28b",
+    decimals: 18,
+    chainId: 1,
+    category: 'gaming',
+  },
+  // Metaverse Tokens
+  {
+    symbol: "MANA",
+    name: "Decentraland",
+    address: "0x0F5D2fB29fb7d3CFeE444a200298f468908cC942",
+    decimals: 18,
+    chainId: 1,
+    category: 'metaverse',
+  },
+  {
+    symbol: "MKR",
+    name: "Maker",
+    address: "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2",
+    decimals: 18,
+    chainId: 1,
+    category: 'governance',
+  },
+  {
+    symbol: "SNX",
+    name: "Synthetix",
+    address: "0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F",
+    decimals: 18,
+    chainId: 1,
+    category: 'defi',
   },
   {
     symbol: "CRV",
@@ -95,6 +179,7 @@ export const tokens: Token[] = [
     address: "0xD533a949740bb3306d119CC777fa900bA034cd52",
     decimals: 18,
     chainId: 1,
+    category: 'defi',
   },
   {
     symbol: "COMP",
@@ -102,6 +187,7 @@ export const tokens: Token[] = [
     address: "0xc00e94Cb662C3520282E6f5717214004A7f26888",
     decimals: 18,
     chainId: 1,
+    category: 'defi',
   },
   {
     symbol: "YFI",
@@ -109,6 +195,7 @@ export const tokens: Token[] = [
     address: "0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e",
     decimals: 18,
     chainId: 1,
+    category: 'defi',
   },
   {
     symbol: "SUSHI",
@@ -116,6 +203,7 @@ export const tokens: Token[] = [
     address: "0x6B3595068778DD592e39A122f4f5a5cF09C90fE2",
     decimals: 18,
     chainId: 1,
+    category: 'defi',
   },
   {
     symbol: "GRT",
@@ -139,18 +227,12 @@ export const tokens: Token[] = [
     chainId: 1,
   },
   {
-    symbol: "MANA",
-    name: "Decentraland",
-    address: "0x0F5D2fB29fb7d3CFeE444a200298f468908cC942",
-    decimals: 18,
-    chainId: 1,
-  },
-  {
     symbol: "1INCH",
     name: "1inch",
     address: "0x111111111117dC0aa78b770fA6A738034120C302",
     decimals: 18,
     chainId: 1,
+    category: 'defi',
   },
   {
     symbol: "LRC",
@@ -172,6 +254,7 @@ export const tokens: Token[] = [
     address: "0xba100000625a3754423978a60c9317c58a424e3D",
     decimals: 18,
     chainId: 1,
+    category: 'defi',
   },
   {
     symbol: "REN",
@@ -208,6 +291,7 @@ export const tokens: Token[] = [
     address: "0x831753DD7087CaC61aB5644b308642cc1c33Dc13",
     decimals: 18,
     chainId: 137,
+    category: 'defi',
   },
   // Binance Smart Chain Tokens
   {
@@ -230,12 +314,16 @@ export const tokens: Token[] = [
     address: "0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82",
     decimals: 18,
     chainId: 56,
+    category: 'defi',
   },
-  // Add more tokens here...
 ];
 
 export const getTokensByChain = (chainId: number) => {
   return tokens.filter(token => token.chainId === chainId);
+};
+
+export const getTokensByCategory = (category: Token['category']) => {
+  return tokens.filter(token => token.category === category);
 };
 
 export const isValidAddress = (address: string): boolean => {

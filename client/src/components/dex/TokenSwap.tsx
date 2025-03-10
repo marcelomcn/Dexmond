@@ -3,9 +3,11 @@ import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
-  SelectValue
+  SelectValue,
 } from "@/components/ui/select";
 import {
   Dialog,
@@ -18,9 +20,11 @@ import {
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
-import { getTokensByChain, addCustomToken, type Token } from "@/lib/tokens";
-import { PlusCircle } from "lucide-react";
+import { getTokensByChain, getTokensByCategory, addCustomToken, type Token } from "@/lib/tokens";
+import { PlusCircle, Search } from "lucide-react";
 import { useAccount, useChainId } from 'wagmi';
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Input as SearchInput } from "@/components/ui/input";
 
 export function TokenSwap() {
   const chainId = useChainId();
@@ -32,9 +36,26 @@ export function TokenSwap() {
   const [toAmount, setToAmount] = useState("");
   const [customTokenAddress, setCustomTokenAddress] = useState("");
   const [isAddingToken, setIsAddingToken] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Get available tokens for the current chain
   const availableTokens = chainId ? getTokensByChain(chainId) : [];
+
+  // Filter tokens based on search term
+  const filteredTokens = availableTokens.filter(token => 
+    token.symbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    token.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Group tokens by category
+  const groupedTokens = filteredTokens.reduce((acc, token) => {
+    const category = token.category || 'other';
+    if (!acc[category]) {
+      acc[category] = [];
+    }
+    acc[category].push(token);
+    return acc;
+  }, {} as Record<string, Token[]>);
 
   const handleAddCustomToken = async () => {
     if (!chainId) {
@@ -55,7 +76,6 @@ export function TokenSwap() {
           title: "Token Added",
           description: `Successfully added custom token`
         });
-        // Reset the input
         setCustomTokenAddress("");
       } else {
         throw new Error("Failed to add token");
@@ -100,7 +120,6 @@ export function TokenSwap() {
     }
 
     try {
-      // Implement swap logic here
       toast({
         title: "Swap Initiated",
         description: `Swapping ${fromAmount} ${fromToken.symbol} to ${toToken.symbol}`
@@ -113,6 +132,41 @@ export function TokenSwap() {
       });
     }
   };
+
+  const renderTokenList = (direction: 'from' | 'to') => (
+    <SelectContent>
+      <div className="p-2">
+        <SearchInput
+          placeholder="Search tokens..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="mb-2"
+        />
+      </div>
+      <ScrollArea className="h-80">
+        {Object.entries(groupedTokens).map(([category, tokens]) => (
+          <SelectGroup key={category}>
+            <SelectLabel className="capitalize">{category}</SelectLabel>
+            {tokens.map((token) => (
+              <SelectItem
+                key={token.address}
+                value={token.address}
+                disabled={
+                  (direction === 'from' && token.address === toToken?.address) ||
+                  (direction === 'to' && token.address === fromToken?.address)
+                }
+              >
+                <div className="flex items-center gap-2">
+                  <span>{token.symbol}</span>
+                  <span className="text-muted-foreground text-sm">- {token.name}</span>
+                </div>
+              </SelectItem>
+            ))}
+          </SelectGroup>
+        ))}
+      </ScrollArea>
+    </SelectContent>
+  );
 
   return (
     <div className="flex flex-col gap-4">
@@ -160,17 +214,7 @@ export function TokenSwap() {
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Select token" />
             </SelectTrigger>
-            <SelectContent>
-              {availableTokens.map((token) => (
-                <SelectItem
-                  key={token.address}
-                  value={token.address}
-                  disabled={token.address === toToken?.address}
-                >
-                  {token.symbol} - {token.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
+            {renderTokenList('from')}
           </Select>
           <Input
             type="number"
@@ -191,17 +235,7 @@ export function TokenSwap() {
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Select token" />
             </SelectTrigger>
-            <SelectContent>
-              {availableTokens.map((token) => (
-                <SelectItem
-                  key={token.address}
-                  value={token.address}
-                  disabled={token.address === fromToken?.address}
-                >
-                  {token.symbol} - {token.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
+            {renderTokenList('to')}
           </Select>
           <Input
             type="number"
