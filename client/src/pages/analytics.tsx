@@ -2,7 +2,7 @@ import React from "react";
 import { Card } from "@/components/ui/card";
 import { WalletConnect } from "@/components/dex/WalletConnect";
 import { MarketStats } from "@/components/dex/MarketStats";
-import { TechnicalChart } from "@/components/dex/TechnicalChart";
+import TechnicalChart from "@/components/dex/TechnicalChart";
 
 export default function AnalyticsPage() {
   return (
