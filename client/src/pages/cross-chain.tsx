@@ -1,34 +1,28 @@
 
 import React from "react";
 import Link from "next/link";
-import { WalletConnect } from "../components/WalletConnect";
 import { CrossChainBridge } from "../components/dex/CrossChainBridge";
 import { CrossChainSwap } from "../components/dex/CrossChainSwap";
+import { WalletConnect } from "../components/dex/WalletConnect";
 
 export default function CrossChainPage() {
   return (
-    <div className="min-h-screen bg-transparent p-4 md:p-8 dex-fade-in">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col gap-6">
-          <header className="flex justify-between items-center">
-            <div className="flex items-center gap-4">
-              <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-400">
-                Dexmond
-              </h1>
-              <div className="hidden md:flex gap-4 ml-8">
-                <Link href="/">
-                  <span className="text-sm text-muted-foreground hover:text-primary cursor-pointer">Trade</span>
-                </Link>
-                <Link href="/pools">
-                  <span className="text-sm text-muted-foreground hover:text-primary cursor-pointer">Pools</span>
-                </Link>
-                <Link href="/analytics">
-                  <span className="text-sm text-muted-foreground hover:text-primary cursor-pointer">Analytics</span>
-                </Link>
-                <Link href="/cross-chain">
-                  <span className="text-sm text-primary cursor-pointer">Cross-Chain</span>
-                </Link>
-              </div>
+    <div className="min-h-screen pb-16">
+      <div className="container mx-auto px-4 py-6">
+        <header className="mb-8">
+          <div className="flex justify-between items-center mb-8">
+            <h1 className="text-3xl font-bold">Cross-Chain</h1>
+            
+            <div className="flex gap-4">
+              <Link href="/dex" className="text-primary hover:underline">
+                DEX
+              </Link>
+              <Link href="/cross-chain" className="text-primary font-bold hover:underline">
+                Cross-Chain
+              </Link>
+              <Link href="/analytics" className="text-primary hover:underline">
+                Analytics
+              </Link>
             </div>
             <WalletConnect />
           </header>
@@ -39,6 +33,5 @@ export default function CrossChainPage() {
           </div>
         </div>
       </div>
-    </div>
   );
 }

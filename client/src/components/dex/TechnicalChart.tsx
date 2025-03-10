@@ -141,3 +141,102 @@ function TechnicalChart({ tokenSymbol }: TechnicalChartProps) {
 }
 
 export default TechnicalChart;
+import React, { useEffect, useRef } from 'react';
+
+export function TechnicalChart() {
+  const chartContainerRef = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    if (!chartContainerRef.current || !window.LightweightCharts) return;
+    
+    const chart = window.LightweightCharts.createChart(chartContainerRef.current, {
+      width: chartContainerRef.current.clientWidth,
+      height: 400,
+      layout: {
+        background: { color: 'rgba(0, 0, 0, 0)' },
+        textColor: '#d1d5db',
+      },
+      grid: {
+        vertLines: { color: 'rgba(42, 46, 57, 0.2)' },
+        horzLines: { color: 'rgba(42, 46, 57, 0.2)' },
+      },
+      timeScale: {
+        timeVisible: true,
+        secondsVisible: false,
+      },
+    });
+    
+    const candlestickSeries = chart.addCandlestickSeries({
+      upColor: '#4CAF50',
+      downColor: '#F44336',
+      borderDownColor: '#F44336',
+      borderUpColor: '#4CAF50',
+      wickDownColor: '#F44336',
+      wickUpColor: '#4CAF50',
+    });
+    
+    // Generate some sample data for now
+    const data = generateSampleData();
+    candlestickSeries.setData(data);
+    
+    // If window.dexmond exists, use it to update chart data
+    if (window.dexmond?.chart?.updateChartData) {
+      window.dexmond.chart.updateChartData(candlestickSeries).catch(console.error);
+    }
+    
+    const handleResize = () => {
+      if (chartContainerRef.current) {
+        chart.applyOptions({ width: chartContainerRef.current.clientWidth });
+      }
+    };
+    
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      chart.remove();
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+  
+  return (
+    <div className="bg-card rounded-xl shadow-lg overflow-hidden">
+      <div className="p-4 border-b border-border">
+        <h2 className="text-xl font-semibold">Price Chart</h2>
+      </div>
+      <div ref={chartContainerRef} className="w-full h-[400px]" />
+    </div>
+  );
+}
+
+function generateSampleData() {
+  const data = [];
+  let time = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).getTime() / 1000;
+  let price = 100;
+  
+  for (let i = 0; i < 30; i++) {
+    const volatility = 0.1;
+    const changePercent = 2 * volatility * Math.random();
+    if (changePercent > volatility) {
+      price = price * (1 + changePercent);
+    } else {
+      price = price * (1 - changePercent);
+    }
+    
+    const open = price;
+    const high = price * (1 + Math.random() * 0.05);
+    const low = price * (1 - Math.random() * 0.05);
+    const close = price * (1 + (Math.random() * 0.1 - 0.05));
+    
+    data.push({
+      time: time,
+      open: open,
+      high: high,
+      low: low,
+      close: close,
+    });
+    
+    time += 24 * 60 * 60; // Add one day
+  }
+  
+  return data;
+}
