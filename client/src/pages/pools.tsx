@@ -2,6 +2,7 @@ import React from "react";
 import { Card } from "@/components/ui/card";
 import { WalletConnect } from "@/components/dex/WalletConnect";
 import { MarketStats } from "@/components/dex/MarketStats";
+import { LiquidityPools } from "@/components/dex/LiquidityPools";
 
 export default function PoolsPage() {
   return (
@@ -26,12 +27,7 @@ export default function PoolsPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <div className="lg:col-span-12">
-              <Card className="p-6">
-                <h2 className="text-2xl font-semibold mb-4">Liquidity Pools</h2>
-                <p className="text-muted-foreground">
-                  Coming soon: Provide liquidity and earn fees from trades.
-                </p>
-              </Card>
+              <LiquidityPools />
             </div>
           </div>
         </div>
