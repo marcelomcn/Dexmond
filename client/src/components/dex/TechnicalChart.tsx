@@ -1,134 +1,159 @@
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Card } from '@/components/ui/card';
-import { dexmond } from '@/lib/dexmond';
-import { createChart, IChartApi, ISeriesApi, CandlestickData, UTCTimestamp } from 'lightweight-charts';
+import { createChart } from 'lightweight-charts';
+import { getPriceHistory } from '../../lib/dexmond';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
 
 interface TechnicalChartProps {
   tokenSymbol: string;
-  width?: number;
-  height?: number;
-  timeframe?: '1d' | '1w' | '1m';
 }
 
-export function TechnicalChart({ 
-  tokenSymbol = 'ethereum', 
-  width = 800, 
-  height = 400,
-  timeframe = '1d'
-}: TechnicalChartProps) {
+export function TechnicalChart({ tokenSymbol }: TechnicalChartProps) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
-  const [chartData, setChartData] = useState<CandlestickData[]>([]);
+  const [timeframe, setTimeframe] = useState<string>('1D');
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  
-  const chartRef = useRef<IChartApi | null>(null);
-  const candlestickSeriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
+  const chartRef = useRef<any>(null);
+  const candlestickSeriesRef = useRef<any>(null);
 
   useEffect(() => {
-    const fetchChartData = async () => {
+    if (!chartContainerRef.current) return;
+    
+    // Initialize the chart
+    if (!chartRef.current) {
+      chartRef.current = createChart(chartContainerRef.current, {
+        width: chartContainerRef.current.clientWidth,
+        height: 400,
+        layout: {
+          background: {
+            type: 'solid',
+            color: '#1a1a1a',
+          },
+          textColor: '#d1d4dc',
+        },
+        grid: {
+          vertLines: {
+            color: '#2B2B43',
+          },
+          horzLines: {
+            color: '#2B2B43',
+          },
+        },
+        timeScale: {
+          timeVisible: true,
+          secondsVisible: false,
+        },
+      });
+      
+      candlestickSeriesRef.current = chartRef.current.addCandlestickSeries({
+        upColor: '#26a69a',
+        downColor: '#ef5350',
+        borderVisible: false,
+        wickUpColor: '#26a69a',
+        wickDownColor: '#ef5350',
+      });
+    }
+
+    // Get price history data for the selected token
+    const loadPriceData = async () => {
+      setIsLoading(true);
       try {
-        setIsLoading(true);
-        setError(null);
+        let coinGeckoId = '';
         
-        // Fetch price history data from our API
-        const data = await dexmond.getPriceHistory(tokenSymbol, 'usd', getDaysFromTimeframe(timeframe));
-        setChartData(data);
-        setIsLoading(false);
-      } catch (err) {
-        console.error('Failed to fetch chart data:', err);
-        setError('Failed to load chart data');
+        // Map token symbol to CoinGecko ID
+        switch(tokenSymbol.toLowerCase()) {
+          case 'eth': coinGeckoId = 'ethereum'; break;
+          case 'usdc': coinGeckoId = 'usd-coin'; break;
+          case 'usdt': coinGeckoId = 'tether'; break;
+          case 'dai': coinGeckoId = 'dai'; break;
+          case 'wbtc': coinGeckoId = 'wrapped-bitcoin'; break;
+          case 'uni': coinGeckoId = 'uniswap'; break;
+          case 'link': coinGeckoId = 'chainlink'; break;
+          case 'aave': coinGeckoId = 'aave'; break;
+          case 'comp': coinGeckoId = 'compound-governance-token'; break;
+          case 'sushi': coinGeckoId = 'sushi'; break;
+          default: coinGeckoId = 'ethereum';
+        }
+        
+        const data = await getPriceHistory(coinGeckoId);
+        if (data && candlestickSeriesRef.current) {
+          candlestickSeriesRef.current.setData(data);
+          chartRef.current.timeScale().fitContent();
+        }
+      } catch (error) {
+        console.error('Error loading price data:', error);
+      } finally {
         setIsLoading(false);
       }
     };
 
-    fetchChartData();
-  }, [tokenSymbol, timeframe]);
+    loadPriceData();
 
-  const getDaysFromTimeframe = (tf: string): number => {
-    switch(tf) {
-      case '1w': return 7;
-      case '1m': return 30;
-      default: return 1;
-    }
-  };
-
-  useEffect(() => {
-    if (!chartContainerRef.current || chartRef.current) return;
-
-    // Initialize the chart
-    const chart = createChart(chartContainerRef.current, {
-      width,
-      height,
-      layout: {
-        background: { color: 'transparent' },
-        textColor: '#d1d5db',
-      },
-      grid: {
-        vertLines: { color: 'rgba(42, 46, 57, 0.3)' },
-        horzLines: { color: 'rgba(42, 46, 57, 0.3)' },
-      },
-      timeScale: {
-        borderColor: 'rgba(197, 203, 206, 0.3)',
-      },
-      crosshair: {
-        mode: 0,
-      },
-    });
-
-    // Set up responsive behavior
-    window.addEventListener('resize', () => {
-      if (chartContainerRef.current) {
-        chart.applyOptions({ width: chartContainerRef.current.clientWidth });
+    const handleResize = () => {
+      if (chartRef.current && chartContainerRef.current) {
+        chartRef.current.applyOptions({ 
+          width: chartContainerRef.current.clientWidth 
+        });
       }
-    });
+    };
 
-    // Create the candlestick series
-    const candlestickSeries = chart.addCandlestickSeries({
-      upColor: '#26a69a',
-      downColor: '#ef5350',
-      borderVisible: false,
-      wickUpColor: '#26a69a',
-      wickDownColor: '#ef5350',
-    });
-
-    chartRef.current = chart;
-    candlestickSeriesRef.current = candlestickSeries;
+    window.addEventListener('resize', handleResize);
 
     return () => {
+      window.removeEventListener('resize', handleResize);
+      // Cleanup chart when component unmounts
       if (chartRef.current) {
         chartRef.current.remove();
+        chartRef.current = null;
       }
     };
-  }, []);
-
-  // Update chart data when it changes
-  useEffect(() => {
-    if (candlestickSeriesRef.current && chartData.length > 0) {
-      candlestickSeriesRef.current.setData(chartData);
-      
-      // Fit content to make sure all data is visible
-      if (chartRef.current) {
-        chartRef.current.timeScale().fitContent();
-      }
-    }
-  }, [chartData]);
+  }, [tokenSymbol, timeframe]);
 
   return (
-    <Card className="p-4 h-[500px]">
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-medium">Price Chart</h3>
-        {isLoading && (
-          <div className="text-sm text-muted-foreground">Loading...</div>
-        )}
-        {error && (
-          <div className="text-sm text-red-500">{error}</div>
-        )}
-      </div>
-      <div 
-        ref={chartContainerRef} 
-        className="w-full h-[400px]"
-      />
+    <Card className="w-full">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-lg flex justify-between items-center">
+          <span>{tokenSymbol} Price Chart</span>
+          <div className="flex space-x-1">
+            <Button 
+              variant={timeframe === '1D' ? 'default' : 'outline'} 
+              size="sm"
+              onClick={() => setTimeframe('1D')}
+              className="text-xs h-7 px-2"
+            >
+              1D
+            </Button>
+            <Button 
+              variant={timeframe === '1W' ? 'default' : 'outline'} 
+              size="sm"
+              onClick={() => setTimeframe('1W')}
+              className="text-xs h-7 px-2"
+            >
+              1W
+            </Button>
+            <Button 
+              variant={timeframe === '1M' ? 'default' : 'outline'} 
+              size="sm"
+              onClick={() => setTimeframe('1M')}
+              className="text-xs h-7 px-2"
+            >
+              1M
+            </Button>
+          </div>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div ref={chartContainerRef} className="w-full h-[400px]">
+          {isLoading && (
+            <div className="flex items-center justify-center h-full">
+              <span className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></span>
+            </div>
+          )}
+        </div>
+      </CardContent>
     </Card>
   );
 }
+
+export default TechnicalChart;
