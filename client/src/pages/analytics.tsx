@@ -2,7 +2,7 @@ import React from "react";
 import { Card } from "@/components/ui/card";
 import { WalletConnect } from "@/components/dex/WalletConnect";
 import { MarketStats } from "@/components/dex/MarketStats";
-import { PriceChart } from "@/components/dex/PriceChart";
+import { TechnicalChart } from "@/components/dex/TechnicalChart";
 
 export default function AnalyticsPage() {
   return (
@@ -30,10 +30,7 @@ export default function AnalyticsPage() {
               <Card className="p-6">
                 <h2 className="text-2xl font-semibold mb-4">Market Analytics</h2>
                 <div className="space-y-6">
-                  <PriceChart />
-                  <p className="text-muted-foreground">
-                    More detailed analytics features coming soon.
-                  </p>
+                  <TechnicalChart />
                 </div>
               </Card>
             </div>
