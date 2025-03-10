@@ -8,6 +8,49 @@
   }
 
   body {
-    @apply font-sans antialiased bg-background text-foreground;
+    @apply font-sans antialiased text-foreground;
+    background: linear-gradient(135deg, hsl(265, 89%, 12%) 0%, hsl(217, 89%, 18%) 100%);
   }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dex-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.loading-screen {
+  @apply fixed inset-0 flex items-center justify-center z-50;
+  background: linear-gradient(135deg, hsl(265, 89%, 12%) 0%, hsl(217, 89%, 18%) 100%);
+}
+
+.loading-animation {
+  @apply relative w-20 h-20;
+}
+
+.loading-animation::before,
+.loading-animation::after {
+  content: '';
+  @apply absolute inset-0 rounded-full;
+  border: 4px solid transparent;
+  border-top-color: hsl(265, 89%, 78%);
+  animation: spin 1s linear infinite;
+}
+
+.loading-animation::after {
+  border-top-color: hsl(217, 89%, 78%);
+  animation-delay: 0.5s;
+}
+
+@keyframes spin {
+  100% { transform: rotate(360deg); }
 }
