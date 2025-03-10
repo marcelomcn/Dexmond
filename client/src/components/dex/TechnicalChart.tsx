@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { createChart } from 'lightweight-charts';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { fetchPriceHistory } from '@/lib/dexmond';
+import { getPriceHistory } from '@/lib/dexmond';
 
 interface TechnicalChartProps {
   tokenSymbol: string;
@@ -58,7 +58,7 @@ export function TechnicalChart({ tokenSymbol }: TechnicalChartProps) {
       setIsLoading(true);
       try {
         const tokenId = tokenSymbol.toLowerCase();
-        const data = await fetchPriceHistory(tokenId, timeframe);
+        const data = await getPriceHistory(tokenId, timeframe);
 
         if (candlestickSeriesRef.current && data) {
           candlestickSeriesRef.current.setData(data);
@@ -89,49 +89,55 @@ export function TechnicalChart({ tokenSymbol }: TechnicalChartProps) {
   }, [tokenSymbol, timeframe]);
 
   return (
-    <Card className="w-full">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-lg flex justify-between items-center">
-          <span>{tokenSymbol} Price Chart</span>
-          <div className="flex space-x-1">
-            <Button 
-              variant={timeframe === '1D' ? 'default' : 'outline'} 
-              size="sm"
-              onClick={() => setTimeframe('1D')}
-              className="text-xs h-7 px-2"
-            >
-              1D
-            </Button>
-            <Button 
-              variant={timeframe === '1W' ? 'default' : 'outline'} 
-              size="sm"
-              onClick={() => setTimeframe('1W')}
-              className="text-xs h-7 px-2"
-            >
-              1W
-            </Button>
-            <Button 
-              variant={timeframe === '1M' ? 'default' : 'outline'} 
-              size="sm"
-              onClick={() => setTimeframe('1M')}
-              className="text-xs h-7 px-2"
-            >
-              1M
-            </Button>
-          </div>
-        </CardTitle>
+    <Card className="w-full h-full">
+      <CardHeader>
+        <CardTitle>Price Chart - {tokenSymbol}</CardTitle>
+        <div className="flex space-x-2">
+          <Button
+            variant={timeframe === '1D' ? 'default' : 'outline'}
+            onClick={() => setTimeframe('1D')}
+            size="sm"
+          >
+            1D
+          </Button>
+          <Button
+            variant={timeframe === '1W' ? 'default' : 'outline'}
+            onClick={() => setTimeframe('1W')}
+            size="sm"
+          >
+            1W
+          </Button>
+          <Button
+            variant={timeframe === '1M' ? 'default' : 'outline'}
+            onClick={() => setTimeframe('1M')}
+            size="sm"
+          >
+            1M
+          </Button>
+          {/* Added 1Y button for consistency */}
+          <Button
+            variant={timeframe === '1Y' ? 'default' : 'outline'}
+            onClick={() => setTimeframe('1Y')}
+            size="sm"
+          >
+            1Y
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
-        <div ref={chartContainerRef} className="w-full h-[400px]">
-          {isLoading && (
-            <div className="flex items-center justify-center h-full">
-              <span className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></span>
-            </div>
-          )}
-        </div>
+        {isLoading ? (
+          <div className="w-full h-[300px] flex items-center justify-center">
+            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        ) : (
+          <div 
+            ref={chartContainerRef} 
+            className="w-full h-[300px]"
+          />
+        )}
       </CardContent>
     </Card>
   );
 }
 
-export default TechnicalChart;
+export { TechnicalChart };

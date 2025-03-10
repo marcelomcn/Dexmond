@@ -155,6 +155,11 @@ export function formatUSD(value: number): string {
   }).format(value);
 }
 
+// Export fetchPriceHistory as a wrapper around getPriceHistory
+export const fetchPriceHistory = async (tokenId: string, timeframe = '30d') => {
+  return getPriceHistory(tokenId, timeframe);
+};
+
 // Add to window object for global access
 declare global {
   interface Window {
@@ -164,9 +169,9 @@ declare global {
       getQuote: typeof getQuote;
       getOrderbook: typeof getOrderbook;
       getPriceHistory: typeof getPriceHistory;
+      fetchPriceHistory: typeof fetchPriceHistory;
       formatAmount: typeof formatAmount;
       formatUSD: typeof formatUSD;
-
     };
   }
 }
@@ -179,6 +184,7 @@ if (typeof window !== 'undefined') {
     getQuote,
     getOrderbook,
     getPriceHistory,
+    fetchPriceHistory,
     formatAmount,
     formatUSD
   };
