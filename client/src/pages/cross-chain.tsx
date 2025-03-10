@@ -1,6 +1,6 @@
 
 import React from "react";
-import Link from "next/link";
+import { Link } from "wouter";
 import { CrossChainBridge } from "../components/dex/CrossChainBridge";
 import { CrossChainSwap } from "../components/dex/CrossChainSwap";
 import { WalletConnect } from "../components/dex/WalletConnect";
