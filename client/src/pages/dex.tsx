@@ -6,6 +6,7 @@ import { WalletConnect } from "@/components/dex/WalletConnect";
 import { MarketStats } from "@/components/dex/MarketStats";
 import { RecentTransactions } from "@/components/dex/RecentTransactions";
 import { AdvancedTrading } from "@/components/dex/AdvancedTrading";
+import { Portfolio } from "@/components/dex/Portfolio";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link } from "wouter";
@@ -88,7 +89,7 @@ export default function DexPage() {
                   <TabsList className="bg-opacity-20">
                     <TabsTrigger value="chart">Price Chart</TabsTrigger>
                     <TabsTrigger value="orderbook">Order Book</TabsTrigger>
-                    <TabsTrigger value="trades">Recent Trades</TabsTrigger>
+                    <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
                   </TabsList>
                   <TabsContent value="chart">
                     <PriceChart />
@@ -96,11 +97,8 @@ export default function DexPage() {
                   <TabsContent value="orderbook">
                     <OrderBook />
                   </TabsContent>
-                  <TabsContent value="trades">
-                    <div className="py-4">
-                      <h3 className="text-lg font-semibold mb-4">Recent Market Trades</h3>
-                      <RecentTransactions />
-                    </div>
+                  <TabsContent value="portfolio">
+                    <Portfolio />
                   </TabsContent>
                 </Tabs>
               </Card>

@@ -3,6 +3,8 @@ import { Card } from "@/components/ui/card";
 import { WalletConnect } from "@/components/dex/WalletConnect";
 import { MarketStats } from "@/components/dex/MarketStats";
 import { LiquidityPools } from "@/components/dex/LiquidityPools";
+import { YieldFarming } from "@/components/dex/YieldFarming";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function PoolsPage() {
   return (
@@ -27,7 +29,20 @@ export default function PoolsPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <div className="lg:col-span-12">
-              <LiquidityPools />
+              <Card className="p-6">
+                <Tabs defaultValue="pools">
+                  <TabsList className="w-full">
+                    <TabsTrigger value="pools" className="flex-1">Liquidity Pools</TabsTrigger>
+                    <TabsTrigger value="farming" className="flex-1">Yield Farming</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="pools">
+                    <LiquidityPools />
+                  </TabsContent>
+                  <TabsContent value="farming">
+                    <YieldFarming />
+                  </TabsContent>
+                </Tabs>
+              </Card>
             </div>
           </div>
         </div>
