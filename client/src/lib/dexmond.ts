@@ -1,12 +1,3 @@
-// Global type augmentation for window object
-declare global {
-  interface Window {
-    dexmond: typeof dexmond;
-  }
-}
-
-const API_KEY = '0xb5c7fc99-385a-4a7f-948c-01236858baa6'; // Removed space
-const BASE_URL = 'https://api.0x.org';
 
 interface PriceResponse {
   price: string;
@@ -29,109 +20,149 @@ interface PriceResponse {
   buyTokenToEthRate: string;
 }
 
+interface TokenInfo {
+  symbol: string;
+  name: string;
+  address: string;
+  decimals: number;
+  chainId: number;
+  category?: string;
+}
+
+interface OrderbookEntry {
+  type: 'buy' | 'sell';
+  price: number;
+  amount: number;
+  total: number;
+  source: string;
+}
+
+interface CandleData {
+  time: number;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+}
+
 export const dexmond = {
-  orderbook: {
-    async generateOrderbookData() {
+  // Price functions
+  price: {
+    async getPrice(sellToken: string, buyToken: string, sellAmount: string): Promise<PriceResponse> {
       try {
-        const response = await fetch(`${BASE_URL}/swap/v1/quote?sellToken=ETH&buyToken=DAI&sellAmount=1000000000000000000`, {
-          headers: {
-            '0x-api-key': API_KEY
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch orderbook data');
-        }
-
-        const data = await response.json() as PriceResponse;
-
-        // Generate synthetic orderbook data based on the price
-        const basePrice = parseFloat(data.price);
-        const orders = [];
-
-        // Generate buy orders
-        for (let i = 0; i < 10; i++) {
-          const priceOffset = (Math.random() * 0.01) - 0.005;
-          orders.push({
-            type: 'buy' as const,
-            price: basePrice * (1 - priceOffset),
-            amount: Math.random() * 10 + 1,
-            total: 0,
-            source: data.sources[Math.floor(Math.random() * data.sources.length)]?.name || 'Market'
-          });
-        }
-
-        // Generate sell orders
-        for (let i = 0; i < 10; i++) {
-          const priceOffset = (Math.random() * 0.01) - 0.005;
-          orders.push({
-            type: 'sell' as const,
-            price: basePrice * (1 + priceOffset),
-            amount: Math.random() * 10 + 1,
-            total: 0,
-            source: data.sources[Math.floor(Math.random() * data.sources.length)]?.name || 'Market'
-          });
-        }
-
-        // Calculate totals and sort
-        orders.forEach(order => {
-          order.total = order.price * order.amount;
-        });
-
-        return orders.sort((a, b) => b.price - a.price);
-      } catch (error) {
-        console.error('Error generating orderbook data:', error);
-        return [];
-      }
-    }
-  },
-
-  chart: {
-    async updateChartData(candlestickSeries: any) {
-      try {
-        // Get historical price data from 0x API
-        const response = await fetch(`${BASE_URL}/swap/v1/prices?sellToken=ETH&buyToken=DAI`, {
-          headers: {
-            '0x-api-key': API_KEY
-          }
-        });
-
+        const response = await fetch(`/api/price?sellToken=${sellToken}&buyToken=${buyToken}&sellAmount=${sellAmount}`);
+        
         if (!response.ok) {
           throw new Error('Failed to fetch price data');
         }
-
-        const data = await response.json();
-
-        // Generate synthetic OHLC data
-        const currentTime = Math.floor(Date.now() / 1000);
-        const candleData = [];
-
-        for (let i = 30; i >= 0; i--) {
-          const basePrice = parseFloat(data.price);
-          const time = currentTime - (i * 86400); // Daily candles
-          const volatility = 0.02; // 2% daily volatility
-
-          const open = basePrice * (1 + (Math.random() - 0.5) * volatility);
-          const close = basePrice * (1 + (Math.random() - 0.5) * volatility);
-          const high = Math.max(open, close) * (1 + Math.random() * volatility);
-          const low = Math.min(open, close) * (1 - Math.random() * volatility);
-
-          candleData.push({
-            time,
-            open,
-            high,
-            low,
-            close
-          });
-        }
-
-        candlestickSeries.setData(candleData);
+        
+        return await response.json();
       } catch (error) {
-        console.error('Error updating chart data:', error);
+        console.error('Error fetching price:', error);
+        throw error;
+      }
+    },
+    
+    async getQuote(sellToken: string, buyToken: string, sellAmount: string, takerAddress?: string): Promise<PriceResponse> {
+      try {
+        let url = `/api/quote?sellToken=${sellToken}&buyToken=${buyToken}&sellAmount=${sellAmount}`;
+        if (takerAddress) {
+          url += `&takerAddress=${takerAddress}`;
+        }
+        
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch quote data');
+        }
+        
+        return await response.json();
+      } catch (error) {
+        console.error('Error fetching quote:', error);
+        throw error;
+      }
+    }
+  },
+  
+  // Orderbook functions
+  orderbook: {
+    async getOrderbook(baseToken: string, quoteToken: string): Promise<{ bids: OrderbookEntry[], asks: OrderbookEntry[] }> {
+      try {
+        const response = await fetch(`/api/orderbook?baseToken=${baseToken}&quoteToken=${quoteToken}`);
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch orderbook data');
+        }
+        
+        return await response.json();
+      } catch (error) {
+        console.error('Error fetching orderbook:', error);
+        throw error;
+      }
+    }
+  },
+  
+  // Chart data functions
+  chart: {
+    async getPriceHistory(token: string, vsCurrency: string = 'usd', days: number = 30): Promise<CandleData[]> {
+      try {
+        const response = await fetch(`/api/price-history?token=${token}&vs_currency=${vsCurrency}&days=${days}`);
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch price history');
+        }
+        
+        return await response.json();
+      } catch (error) {
+        console.error('Error fetching price history:', error);
+        throw error;
+      }
+    },
+    
+    async updateChart(chartInstance: any, token: string, vsCurrency: string = 'usd', days: number = 30): Promise<void> {
+      try {
+        const candleData = await this.getPriceHistory(token, vsCurrency, days);
+        
+        if (chartInstance && chartInstance.series && chartInstance.series.length > 0) {
+          const candlestickSeries = chartInstance.series[0];
+          candlestickSeries.setData(candleData);
+        }
+      } catch (error) {
+        console.error('Error updating chart:', error);
+        throw error;
+      }
+    }
+  },
+  
+  // Token functions
+  tokens: {
+    async getTokens(chainId?: number): Promise<TokenInfo[]> {
+      try {
+        let url = '/api/tokens';
+        if (chainId) {
+          url += `?chainId=${chainId}`;
+        }
+        
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch token list');
+        }
+        
+        return await response.json();
+      } catch (error) {
+        console.error('Error fetching tokens:', error);
+        throw error;
       }
     }
   }
 };
 
-// Add to window object
+// Add to window object for global access
+declare global {
+  interface Window {
+    dexmond: typeof dexmond;
+  }
+}
+
 window.dexmond = dexmond;
