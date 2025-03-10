@@ -1,27 +1,78 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useWeb3 } from "@/lib/web3";
-import { useState } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-
-// Sample token list - in production would be fetched from an API
-const tokens = [
-  { symbol: "ETH", name: "Ethereum", address: "0x0000000000000000000000000000000000000000" },
-  { symbol: "USDC", name: "USD Coin", address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48" }
-];
+import { useState } from "react";
+import { getTokensByChain, addCustomToken, type Token } from "@/lib/tokens";
+import { PlusCircle } from "lucide-react";
+import { useAccount, useChainId } from 'wagmi';
 
 export function TokenSwap() {
-  const { address, executeSwap } = useWeb3();
-  const [fromToken, setFromToken] = useState(tokens[0]);
-  const [toToken, setToToken] = useState(tokens[1]);
+  const chainId = useChainId();
+  const { isConnected } = useAccount();
+  const { toast } = useToast();
+  const [fromToken, setFromToken] = useState<Token | null>(null);
+  const [toToken, setToToken] = useState<Token | null>(null);
   const [fromAmount, setFromAmount] = useState("");
   const [toAmount, setToAmount] = useState("");
-  const [loading, setLoading] = useState(false);
-  const { toast } = useToast();
+  const [customTokenAddress, setCustomTokenAddress] = useState("");
+  const [isAddingToken, setIsAddingToken] = useState(false);
+
+  // Get available tokens for the current chain
+  const availableTokens = chainId ? getTokensByChain(chainId) : [];
+
+  const handleAddCustomToken = async () => {
+    if (!chainId) {
+      toast({
+        title: "Network Error",
+        description: "Please connect to a network first",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      setIsAddingToken(true);
+      const newToken = await addCustomToken(customTokenAddress, chainId);
+
+      if (newToken) {
+        toast({
+          title: "Token Added",
+          description: `Successfully added custom token`
+        });
+        // Reset the input
+        setCustomTokenAddress("");
+      } else {
+        throw new Error("Failed to add token");
+      }
+    } catch (error) {
+      toast({
+        title: "Error Adding Token",
+        description: error instanceof Error ? error.message : "Invalid token address",
+        variant: "destructive"
+      });
+    } finally {
+      setIsAddingToken(false);
+    }
+  };
 
   const handleSwap = async () => {
-    if (!address) {
+    if (!isConnected) {
       toast({
         title: "Connect Wallet",
         description: "Please connect your wallet to swap tokens",
@@ -30,17 +81,29 @@ export function TokenSwap() {
       return;
     }
 
-    try {
-      setLoading(true);
-      await executeSwap({
-        fromToken,
-        toToken,
-        amount: fromAmount
-      });
-      
+    if (!fromToken || !toToken) {
       toast({
-        title: "Swap Successful",
-        description: `Swapped ${fromAmount} ${fromToken.symbol} to ${toAmount} ${toToken.symbol}`
+        title: "Select Tokens",
+        description: "Please select tokens to swap",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!fromAmount) {
+      toast({
+        title: "Enter Amount",
+        description: "Please enter an amount to swap",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      // Implement swap logic here
+      toast({
+        title: "Swap Initiated",
+        description: `Swapping ${fromAmount} ${fromToken.symbol} to ${toToken.symbol}`
       });
     } catch (error) {
       toast({
@@ -48,27 +111,63 @@ export function TokenSwap() {
         description: error instanceof Error ? error.message : "Failed to execute swap",
         variant: "destructive"
       });
-    } finally {
-      setLoading(false);
     }
   };
 
   return (
     <div className="flex flex-col gap-4">
       <div className="space-y-2">
-        <label>From</label>
+        <div className="flex justify-between items-center">
+          <Label>From</Label>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="ghost" size="sm">
+                <PlusCircle className="h-4 w-4 mr-2" />
+                Add Token
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add Custom Token</DialogTitle>
+                <DialogDescription>
+                  Enter the contract address of your token
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label>Token Contract Address</Label>
+                  <Input
+                    placeholder="0x..."
+                    value={customTokenAddress}
+                    onChange={(e) => setCustomTokenAddress(e.target.value)}
+                  />
+                </div>
+                <Button
+                  onClick={handleAddCustomToken}
+                  disabled={isAddingToken || !customTokenAddress}
+                >
+                  {isAddingToken ? "Adding..." : "Add Token"}
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
         <div className="flex gap-2">
-          <Select 
-            value={fromToken.symbol}
-            onValueChange={(value) => setFromToken(tokens.find(t => t.symbol === value)!)}
+          <Select
+            value={fromToken?.address}
+            onValueChange={(value) => setFromToken(availableTokens.find(t => t.address === value) || null)}
           >
-            <SelectTrigger className="w-[120px]">
-              <SelectValue />
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select token" />
             </SelectTrigger>
             <SelectContent>
-              {tokens.map(token => (
-                <SelectItem key={token.symbol} value={token.symbol}>
-                  {token.symbol}
+              {availableTokens.map((token) => (
+                <SelectItem
+                  key={token.address}
+                  value={token.address}
+                  disabled={token.address === toToken?.address}
+                >
+                  {token.symbol} - {token.name}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -83,19 +182,23 @@ export function TokenSwap() {
       </div>
 
       <div className="space-y-2">
-        <label>To</label>
+        <Label>To</Label>
         <div className="flex gap-2">
           <Select
-            value={toToken.symbol}
-            onValueChange={(value) => setToToken(tokens.find(t => t.symbol === value)!)}
+            value={toToken?.address}
+            onValueChange={(value) => setToToken(availableTokens.find(t => t.address === value) || null)}
           >
-            <SelectTrigger className="w-[120px]">
-              <SelectValue />
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select token" />
             </SelectTrigger>
             <SelectContent>
-              {tokens.map(token => (
-                <SelectItem key={token.symbol} value={token.symbol}>
-                  {token.symbol}
+              {availableTokens.map((token) => (
+                <SelectItem
+                  key={token.address}
+                  value={token.address}
+                  disabled={token.address === fromToken?.address}
+                >
+                  {token.symbol} - {token.name}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -110,12 +213,12 @@ export function TokenSwap() {
         </div>
       </div>
 
-      <Button 
+      <Button
         onClick={handleSwap}
-        disabled={!address || !fromAmount || loading}
+        disabled={!isConnected || !fromToken || !toToken || !fromAmount}
         className="w-full"
       >
-        {loading ? "Swapping..." : "Swap"}
+        {!isConnected ? "Connect Wallet" : "Swap"}
       </Button>
     </div>
   );
