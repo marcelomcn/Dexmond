@@ -10,6 +10,9 @@ import { Portfolio } from "@/components/dex/Portfolio";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link } from "wouter";
+// Added import to address the likely missing component
+import { TechnicalChart } from "@/components/dex/TechnicalChart"; // Assumed correct path
+
 
 export default function DexPage() {
   const [isLoading, setIsLoading] = useState(true);
@@ -93,6 +96,8 @@ export default function DexPage() {
                     <TabsTrigger value="chart">Price Chart</TabsTrigger>
                     <TabsTrigger value="orderbook">Order Book</TabsTrigger>
                     <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
+                    {/* Added a tab for Technical Chart - a guess based on context */}
+                    <TabsTrigger value="technical">Technical Chart</TabsTrigger>
                   </TabsList>
                   <TabsContent value="chart">
                     <PriceChart />
@@ -102,6 +107,9 @@ export default function DexPage() {
                   </TabsContent>
                   <TabsContent value="portfolio">
                     <Portfolio />
+                  </TabsContent>
+                  <TabsContent value="technical">
+                    <TechnicalChart /> {/* Added the Technical Chart component */}
                   </TabsContent>
                 </Tabs>
               </Card>

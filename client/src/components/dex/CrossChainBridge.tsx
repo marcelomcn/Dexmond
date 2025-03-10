@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
 
-interface ChainInfo {
+import React, { useState } from "react";
+
+type ChainInfo = {
   id: number;
   name: string;
   nativeToken: string;
@@ -43,7 +44,7 @@ export function CrossChainBridge() {
   return (
     <div className="bg-card rounded-xl p-6 shadow-lg">
       <h2 className="text-2xl font-bold mb-6">Cross-Chain Bridge</h2>
-
+      
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
           <label className="block text-sm mb-2">Source Chain</label>
@@ -91,42 +92,50 @@ export function CrossChainBridge() {
           </select>
         </div>
 
-        <div className="mb-6">
+        <div className="mb-4">
           <label className="block text-sm mb-2">Amount ({sourceChain.nativeToken})</label>
           <input 
-            type="text"
+            type="text" 
             className="w-full p-3 bg-background rounded border border-input"
-            placeholder={`Enter amount in ${sourceChain.nativeToken}`}
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
+            placeholder="0.0"
           />
         </div>
 
-        <div className="text-sm mb-6">
-          <p>Estimated time: {targetChain.estimatedTime}</p>
-          <p>Bridge Fee: 0.1%</p>
+        <div className="mb-4 p-3 bg-muted rounded">
+          <div className="flex justify-between text-sm mb-2">
+            <span>Bridge Fee</span>
+            <span>0.005 {sourceChain.nativeToken}</span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span>Est. Arrival Time</span>
+            <span>{targetChain.estimatedTime}</span>
+          </div>
         </div>
 
         <button 
-          type="submit"
-          className="w-full py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+          type="submit" 
+          className="w-full p-3 bg-primary text-primary-foreground rounded font-medium"
           disabled={isProcessing || !amount}
         >
-          {isProcessing ? 'Processing...' : `Bridge to ${targetChain.name}`}
+          {isProcessing ? "Processing..." : "Bridge Tokens"}
         </button>
       </form>
 
       {txHash && (
-        <div className="mt-4 p-3 bg-muted rounded-lg">
-          <p className="text-sm">Transaction submitted:</p>
-          <a 
-            href={`https://etherscan.io/tx/${txHash}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm text-primary break-all"
-          >
-            {txHash}
-          </a>
+        <div className="mt-4 p-3 bg-green-100 dark:bg-green-900 rounded">
+          <p className="text-sm text-green-800 dark:text-green-200">
+            Transaction submitted! <br />
+            <a 
+              href={`https://etherscan.io/tx/${txHash}`} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="underline"
+            >
+              View transaction: {txHash.substring(0, 10)}...
+            </a>
+          </p>
         </div>
       )}
     </div>

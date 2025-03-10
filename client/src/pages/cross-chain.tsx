@@ -33,5 +33,6 @@ export default function CrossChainPage() {
           </div>
         </div>
       </div>
+    </div>
   );
 }
