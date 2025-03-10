@@ -21,7 +21,15 @@ export default function DexPage() {
   if (isLoading) {
     return (
       <div className="loading-screen">
-        <div className="loading-animation" />
+        <div className="flex flex-col items-center gap-8">
+          <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-400">
+            DEXMOND
+          </h1>
+          <p className="text-xl text-purple-200 opacity-80">
+            Cross-Chain DEX Aggregator
+          </p>
+          <div className="loading-animation" />
+        </div>
       </div>
     );
   }
