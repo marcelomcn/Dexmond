@@ -5,11 +5,11 @@ export function PriceChart() {
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!containerRef.current) return;
 
-    // Initialize chart using CSP-safe configuration
     const initChart = async () => {
       try {
         // Wait for the chart library to load
@@ -62,6 +62,7 @@ export function PriceChart() {
         return () => window.removeEventListener('resize', handleResize);
       } catch (error) {
         console.error("Failed to initialize chart:", error);
+        setError("Failed to load chart data. Please try refreshing the page.");
         setIsLoading(false);
       }
     };
@@ -82,11 +83,17 @@ export function PriceChart() {
           <div className="loading-animation" />
         </div>
       )}
-      <div 
-        ref={containerRef} 
-        className="w-full h-[400px]"
-        style={{ display: isLoading ? 'none' : 'block' }}
-      />
+      {error && (
+        <div className="flex items-center justify-center h-[400px] text-red-400">
+          {error}
+        </div>
+      )}
+      {!isLoading && !error && (
+        <div 
+          ref={containerRef} 
+          className="w-full h-[400px]"
+        />
+      )}
     </Card>
   );
 }

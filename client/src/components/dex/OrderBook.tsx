@@ -11,16 +11,18 @@ interface Order {
 export function OrderBook() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Using the CSP-safe orderbook functionality
     const updateOrders = async () => {
       try {
         setLoading(true);
         const newOrders = await window.dexmond.orderbook.generateOrderbookData();
         setOrders(newOrders);
+        setError(null);
       } catch (error) {
         console.error("Failed to load orderbook:", error);
+        setError("Failed to load orderbook data");
       } finally {
         setLoading(false);
       }
@@ -32,11 +34,23 @@ export function OrderBook() {
   }, []);
 
   if (loading) {
-    return <div className="text-center py-4">Loading orderbook...</div>;
+    return (
+      <div className="flex items-center justify-center py-8">
+        <div className="loading-animation" />
+      </div>
+    );
   }
 
-  const buyOrders = orders.filter(o => o.type === 'buy');
-  const sellOrders = orders.filter(o => o.type === 'sell');
+  if (error) {
+    return (
+      <div className="text-center py-8 text-red-400">
+        {error}
+      </div>
+    );
+  }
+
+  const buyOrders = orders.filter(o => o.type === 'buy').sort((a, b) => b.price - a.price);
+  const sellOrders = orders.filter(o => o.type === 'sell').sort((a, b) => a.price - b.price);
 
   return (
     <div className="grid grid-cols-2 gap-4">
