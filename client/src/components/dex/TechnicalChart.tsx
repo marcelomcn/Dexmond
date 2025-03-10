@@ -123,3 +123,138 @@ export function TechnicalChart({
 }
 
 export default TechnicalChart;
+import React, { useEffect, useRef, useState } from 'react';
+import { Card } from '@/components/ui/card';
+import { dexmond } from '@/lib/dexmond';
+import { createChart, IChartApi, ISeriesApi, CandlestickData, UTCTimestamp } from 'lightweight-charts';
+
+interface TechnicalChartProps {
+  baseToken?: string;
+  quoteToken?: string;
+  timeframe?: string;
+}
+
+export function TechnicalChart({ 
+  baseToken = 'ethereum', 
+  quoteToken = 'usd', 
+  timeframe = '30' 
+}: TechnicalChartProps) {
+  const chartContainerRef = useRef<HTMLDivElement>(null);
+  const [chartData, setChartData] = useState<CandlestickData[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  const chartRef = useRef<IChartApi | null>(null);
+  const candlestickSeriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
+
+  useEffect(() => {
+    const fetchChartData = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        
+        // Fetch price history data from our API
+        const data = await dexmond.price.getPriceHistory(baseToken, quoteToken, timeframe);
+        setChartData(data);
+        setIsLoading(false);
+      } catch (err) {
+        console.error('Failed to fetch chart data:', err);
+        setError('Failed to load chart data');
+        setIsLoading(false);
+      }
+    };
+
+    fetchChartData();
+  }, [baseToken, quoteToken, timeframe]);
+
+  useEffect(() => {
+    if (!chartContainerRef.current || chartRef.current) return;
+
+    // Initialize the chart
+    const chart = createChart(chartContainerRef.current, {
+      width: chartContainerRef.current.clientWidth,
+      height: 400,
+      layout: {
+        background: {
+          color: 'transparent',
+        },
+        textColor: '#d1d5db',
+      },
+      grid: {
+        vertLines: {
+          color: 'rgba(42, 46, 57, 0.3)',
+        },
+        horzLines: {
+          color: 'rgba(42, 46, 57, 0.3)',
+        },
+      },
+      timeScale: {
+        borderColor: 'rgba(197, 203, 206, 0.3)',
+      },
+      crosshair: {
+        mode: 0,
+      },
+    });
+
+    // Set up responsive behavior
+    const handleResize = () => {
+      if (chartContainerRef.current && chart) {
+        chart.applyOptions({ 
+          width: chartContainerRef.current.clientWidth 
+        });
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    
+    // Create the candlestick series
+    const candlestickSeries = chart.addCandlestickSeries({
+      upColor: '#26a69a',
+      downColor: '#ef5350',
+      borderVisible: false,
+      wickUpColor: '#26a69a',
+      wickDownColor: '#ef5350',
+    });
+
+    chartRef.current = chart;
+    candlestickSeriesRef.current = candlestickSeries;
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      if (chartRef.current) {
+        chartRef.current.remove();
+        chartRef.current = null;
+      }
+    };
+  }, []);
+
+  // Update chart data when it changes
+  useEffect(() => {
+    if (candlestickSeriesRef.current && chartData.length > 0) {
+      candlestickSeriesRef.current.setData(chartData);
+      
+      // Fit content to make sure all data is visible
+      if (chartRef.current) {
+        chartRef.current.timeScale().fitContent();
+      }
+    }
+  }, [chartData]);
+
+  return (
+    <Card className="p-4 h-[500px]">
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-lg font-medium">Price Chart</h3>
+        {isLoading && (
+          <div className="text-sm text-muted-foreground">Loading...</div>
+        )}
+        {error && (
+          <div className="text-sm text-red-500">{error}</div>
+        )}
+      </div>
+      <div 
+        ref={chartContainerRef} 
+        className="w-full h-[400px]"
+      />
+    </Card>
+  );
+}

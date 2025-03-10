@@ -6,7 +6,7 @@ import axios from "axios";
 import { Request, Response } from "express";
 
 // Configuration - in production these should be in environment variables
-const API_KEY = "your-0x-api-key"; // You'll need to get a real API key
+const API_KEY = "b5c7fc99-385a-4a7f-948c-01236858baa6"; // 0x API key
 const BASE_URL = "https://api.0x.org";
 
 export async function registerRoutes(app: Express): Promise<Server> {

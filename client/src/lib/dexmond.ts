@@ -81,6 +81,21 @@ export const dexmond = {
         console.error('Error fetching quote:', error);
         throw error;
       }
+    },
+    
+    async getPriceHistory(token: string, vsCurrency: string = 'usd', days: string = '30'): Promise<any[]> {
+      try {
+        const response = await fetch(`/api/price-history?token=${token}&vs_currency=${vsCurrency}&days=${days}`);
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch price history data');
+        }
+        
+        return await response.json();
+      } catch (error) {
+        console.error('Error fetching price history:', error);
+        throw error;
+      }
     }
   },
   
