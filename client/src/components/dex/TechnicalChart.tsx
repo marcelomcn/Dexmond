@@ -1,10 +1,8 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { createChart } from 'lightweight-charts';
-import { getPriceHistory } from '../../lib/dexmond';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { fetchPriceHistory } from '@/lib/dexmond';
 
 interface TechnicalChartProps {
   tokenSymbol: string;
@@ -19,7 +17,7 @@ export function TechnicalChart({ tokenSymbol }: TechnicalChartProps) {
 
   useEffect(() => {
     if (!chartContainerRef.current) return;
-    
+
     // Initialize the chart
     if (!chartRef.current) {
       chartRef.current = createChart(chartContainerRef.current, {
@@ -45,7 +43,7 @@ export function TechnicalChart({ tokenSymbol }: TechnicalChartProps) {
           secondsVisible: false,
         },
       });
-      
+
       candlestickSeriesRef.current = chartRef.current.addCandlestickSeries({
         upColor: '#26a69a',
         downColor: '#ef5350',
@@ -55,41 +53,26 @@ export function TechnicalChart({ tokenSymbol }: TechnicalChartProps) {
       });
     }
 
-    // Get price history data for the selected token
-    const loadPriceData = async () => {
+    // Update chart data based on timeframe changes
+    const updateChartData = async () => {
       setIsLoading(true);
       try {
-        let coinGeckoId = '';
-        
-        // Map token symbol to CoinGecko ID
-        switch(tokenSymbol.toLowerCase()) {
-          case 'eth': coinGeckoId = 'ethereum'; break;
-          case 'usdc': coinGeckoId = 'usd-coin'; break;
-          case 'usdt': coinGeckoId = 'tether'; break;
-          case 'dai': coinGeckoId = 'dai'; break;
-          case 'wbtc': coinGeckoId = 'wrapped-bitcoin'; break;
-          case 'uni': coinGeckoId = 'uniswap'; break;
-          case 'link': coinGeckoId = 'chainlink'; break;
-          case 'aave': coinGeckoId = 'aave'; break;
-          case 'comp': coinGeckoId = 'compound-governance-token'; break;
-          case 'sushi': coinGeckoId = 'sushi'; break;
-          default: coinGeckoId = 'ethereum';
-        }
-        
-        const data = await getPriceHistory(coinGeckoId);
-        if (data && candlestickSeriesRef.current) {
+        const tokenId = tokenSymbol.toLowerCase();
+        const data = await fetchPriceHistory(tokenId, timeframe);
+
+        if (candlestickSeriesRef.current && data) {
           candlestickSeriesRef.current.setData(data);
-          chartRef.current.timeScale().fitContent();
         }
       } catch (error) {
-        console.error('Error loading price data:', error);
+        console.error('Error fetching price history:', error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    loadPriceData();
+    updateChartData();
 
+    // Handle resize
     const handleResize = () => {
       if (chartRef.current && chartContainerRef.current) {
         chartRef.current.applyOptions({ 
@@ -102,11 +85,6 @@ export function TechnicalChart({ tokenSymbol }: TechnicalChartProps) {
 
     return () => {
       window.removeEventListener('resize', handleResize);
-      // Cleanup chart when component unmounts
-      if (chartRef.current) {
-        chartRef.current.remove();
-        chartRef.current = null;
-      }
     };
   }, [tokenSymbol, timeframe]);
 
