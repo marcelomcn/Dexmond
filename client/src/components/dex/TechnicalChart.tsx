@@ -1,7 +1,8 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { dexmond } from '@/lib/dexmond';
-import { createChart, IChartApi, ISeriesApi, CandlestickData } from 'lightweight-charts';
+import { createChart, IChartApi, ISeriesApi, CandlestickData, UTCTimestamp } from 'lightweight-charts';
 
 interface TechnicalChartProps {
   tokenSymbol: string;
@@ -20,7 +21,7 @@ export function TechnicalChart({
   const [chartData, setChartData] = useState<CandlestickData[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-
+  
   const chartRef = useRef<IChartApi | null>(null);
   const candlestickSeriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
 
@@ -29,14 +30,14 @@ export function TechnicalChart({
       try {
         setIsLoading(true);
         setError(null);
-
+        
         // Fetch price history data from our API
         const data = await dexmond.getPriceHistory(tokenSymbol, 'usd', getDaysFromTimeframe(timeframe));
         setChartData(data);
+        setIsLoading(false);
       } catch (err) {
         console.error('Failed to fetch chart data:', err);
         setError('Failed to load chart data');
-      } finally {
         setIsLoading(false);
       }
     };
@@ -99,13 +100,13 @@ export function TechnicalChart({
         chartRef.current.remove();
       }
     };
-  }, [width, height]);
+  }, []);
 
   // Update chart data when it changes
   useEffect(() => {
     if (candlestickSeriesRef.current && chartData.length > 0) {
       candlestickSeriesRef.current.setData(chartData);
-
+      
       // Fit content to make sure all data is visible
       if (chartRef.current) {
         chartRef.current.timeScale().fitContent();
