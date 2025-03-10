@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from "react";
 import { TokenSwap } from "@/components/dex/TokenSwap";
 import { OrderBook } from "@/components/dex/OrderBook";
 import { PriceChart } from "@/components/dex/PriceChart";
@@ -6,7 +7,6 @@ import { MarketStats } from "@/components/dex/MarketStats";
 import { RecentTransactions } from "@/components/dex/RecentTransactions";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useEffect, useState } from "react";
 
 export default function DexPage() {
   const [isLoading, setIsLoading] = useState(true);
