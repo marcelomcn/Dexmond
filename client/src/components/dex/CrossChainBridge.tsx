@@ -50,14 +50,21 @@ export function CrossChainBridge() {
   const [toChain, setToChain] = useState<number>(137);
   const [selectedToken, setSelectedToken] = useState<Token | null>(null);
   const [amount, setAmount] = useState("");
-  
-  // Mock bridge transactions
+
+  // Fix the mock transactions section and add error handling
   const [transactions] = useState<BridgeTransaction[]>([
     {
       id: "1",
       fromChain: 1,
       toChain: 137,
-      token: getTokensByChain(1).find(t => t.symbol === "USDC")!,
+      token: getTokensByChain(1).find(t => t.symbol === "USDC") || {
+        symbol: "USDC",
+        name: "USD Coin",
+        address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+        decimals: 6,
+        chainId: 1,
+        category: 'stablecoin',
+      },
       amount: "1000",
       status: 'completed',
       timestamp: Date.now() - 3600000,
@@ -67,7 +74,13 @@ export function CrossChainBridge() {
       id: "2",
       fromChain: 137,
       toChain: 1,
-      token: getTokensByChain(137).find(t => t.symbol === "MATIC")!,
+      token: getTokensByChain(137).find(t => t.symbol === "MATIC") || {
+        symbol: "MATIC",
+        name: "Polygon",
+        address: "0x0000000000000000000000000000000000001010",
+        decimals: 18,
+        chainId: 137,
+      },
       amount: "500",
       status: 'pending',
       timestamp: Date.now() - 1800000,
@@ -216,6 +229,7 @@ export function CrossChainBridge() {
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Recent Transactions</h3>
             <div className="space-y-4">
+              {/* Update the transaction display section with error handling */}
               {transactions.map((tx) => (
                 <Card key={tx.id} className="p-4">
                   <div className="space-y-2">
@@ -232,17 +246,17 @@ export function CrossChainBridge() {
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span>{tx.amount} {tx.token.symbol}</span>
+                      <span>{tx.amount} {tx.token?.symbol || 'Unknown'}</span>
                       <ArrowRight className="h-4 w-4" />
-                      <span>{tx.amount} {tx.token.symbol}</span>
+                      <span>{tx.amount} {tx.token?.symbol || 'Unknown'}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <span>{
-                        supportedChains.find(c => c.id === tx.fromChain)?.name
+                        supportedChains.find(c => c.id === tx.fromChain)?.name || 'Unknown Chain'
                       }</span>
                       <ArrowRight className="h-4 w-4" />
                       <span>{
-                        supportedChains.find(c => c.id === tx.toChain)?.name
+                        supportedChains.find(c => c.id === tx.toChain)?.name || 'Unknown Chain'
                       }</span>
                     </div>
                     <a
