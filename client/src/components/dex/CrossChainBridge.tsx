@@ -1,7 +1,26 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { ethers } from "ethers";
+import { 
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle 
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue 
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { ArrowDown, Info } from "lucide-react";
 
-type ChainInfo = {
+interface ChainInfo {
   id: number;
   name: string;
   nativeToken: string;
@@ -10,134 +29,204 @@ type ChainInfo = {
 
 const supportedChains: ChainInfo[] = [
   { id: 1, name: "Ethereum", nativeToken: "ETH", estimatedTime: "15 mins" },
-  { id: 56, name: "BNB Chain", nativeToken: "BNB", estimatedTime: "5 mins" },
-  { id: 137, name: "Polygon", nativeToken: "MATIC", estimatedTime: "7 mins" },
-  { id: 42161, name: "Arbitrum", nativeToken: "ETH", estimatedTime: "2 mins" },
-  { id: 10, name: "Optimism", nativeToken: "ETH", estimatedTime: "3 mins" },
-  { id: 43114, name: "Avalanche", nativeToken: "AVAX", estimatedTime: "5 mins" },
+  { id: 56, name: "Binance Smart Chain", nativeToken: "BNB", estimatedTime: "5 mins" },
+  { id: 137, name: "Polygon", nativeToken: "MATIC", estimatedTime: "3 mins" },
+  { id: 42161, name: "Arbitrum", nativeToken: "ETH", estimatedTime: "10 mins" },
 ];
 
-export function CrossChainBridge() {
-  const [sourceChain, setSourceChain] = useState<ChainInfo>(supportedChains[0]);
-  const [targetChain, setTargetChain] = useState<ChainInfo>(supportedChains[1]);
+const mockedTokens = [
+  { symbol: "ETH", name: "Ethereum", balance: "1.23" },
+  { symbol: "USDC", name: "USD Coin", balance: "1024.5" },
+  { symbol: "USDT", name: "Tether", balance: "500" },
+  { symbol: "DAI", name: "Dai Stablecoin", balance: "750.25" },
+];
+
+export const CrossChainBridge = () => {
+  const [sourceChain, setSourceChain] = useState<string>("");
+  const [destinationChain, setDestinationChain] = useState<string>("");
+  const [sourceToken, setSourceToken] = useState<string>("");
+  const [destinationToken, setDestinationToken] = useState<string>("");
   const [amount, setAmount] = useState<string>("");
-  const [isProcessing, setIsProcessing] = useState<boolean>(false);
-  const [txHash, setTxHash] = useState<string | null>(null);
-
-  const handleSwapChains = () => {
-    const temp = sourceChain;
-    setSourceChain(targetChain);
-    setTargetChain(temp);
+  const [fee, setFee] = useState<string>("0.0");
+  
+  const calculateFee = () => {
+    // In a real implementation, this would call a bridge API to get the actual fee
+    if (amount && !isNaN(parseFloat(amount))) {
+      setFee((parseFloat(amount) * 0.005).toFixed(4)); // 0.5% fee example
+    } else {
+      setFee("0.0");
+    }
   };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsProcessing(true);
-
-    // Simulate a transaction
-    setTimeout(() => {
-      setTxHash("0x" + Math.random().toString(16).substr(2, 40));
-      setIsProcessing(false);
-    }, 3000);
+  
+  useEffect(() => {
+    calculateFee();
+  }, [amount, sourceChain, destinationChain, sourceToken]);
+  
+  const handleBridgeSubmit = async () => {
+    // In a real implementation, this would call the actual bridge smart contract
+    console.log("Initiating bridge transaction", {
+      sourceChain,
+      destinationChain,
+      sourceToken,
+      destinationToken,
+      amount
+    });
+    
+    // Here you would:
+    // 1. Connect to user's wallet (using ethers or viem)
+    // 2. Approve the bridge contract to use tokens
+    // 3. Call the actual bridge function
+    
+    alert("Bridge functionality would be implemented here with real smart contract calls");
   };
-
+  
   return (
-    <div className="bg-card rounded-xl p-6 shadow-lg">
-      <h2 className="text-2xl font-bold mb-6">Cross-Chain Bridge</h2>
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle>Cross-Chain Bridge</CardTitle>
+        <CardDescription>Transfer tokens across different blockchain networks</CardDescription>
+      </CardHeader>
       
-      <form onSubmit={handleSubmit}>
-        <div className="mb-4">
-          <label className="block text-sm mb-2">Source Chain</label>
-          <select 
-            className="w-full p-3 bg-background rounded border border-input"
-            value={sourceChain.id}
-            onChange={(e) => {
-              const selected = supportedChains.find(chain => chain.id === parseInt(e.target.value));
-              if (selected) setSourceChain(selected);
-            }}
+      <CardContent className="space-y-4">
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Source Chain</label>
+          <Select
+            value={sourceChain}
+            onValueChange={setSourceChain}
           >
-            {supportedChains.map((chain) => (
-              <option key={chain.id} value={chain.id}>
-                {chain.name} ({chain.nativeToken})
-              </option>
-            ))}
-          </select>
+            <SelectTrigger>
+              <SelectValue placeholder="Select source chain" />
+            </SelectTrigger>
+            <SelectContent>
+              {supportedChains.map((chain) => (
+                <SelectItem key={chain.id} value={chain.name}>
+                  {chain.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
-
-        <div className="flex justify-center my-4">
-          <button 
-            type="button"
-            className="p-2 rounded-full bg-muted hover:bg-primary/20 transition-colors"
-            onClick={handleSwapChains}
-          >
-            ↑↓
-          </button>
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-sm mb-2">Target Chain</label>
-          <select 
-            className="w-full p-3 bg-background rounded border border-input"
-            value={targetChain.id}
-            onChange={(e) => {
-              const selected = supportedChains.find(chain => chain.id === parseInt(e.target.value));
-              if (selected) setTargetChain(selected);
-            }}
-          >
-            {supportedChains.map((chain) => (
-              <option key={chain.id} value={chain.id}>
-                {chain.name} ({chain.nativeToken})
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-sm mb-2">Amount ({sourceChain.nativeToken})</label>
-          <input 
-            type="text" 
-            className="w-full p-3 bg-background rounded border border-input"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            placeholder="0.0"
-          />
-        </div>
-
-        <div className="mb-4 p-3 bg-muted rounded">
-          <div className="flex justify-between text-sm mb-2">
-            <span>Bridge Fee</span>
-            <span>0.005 {sourceChain.nativeToken}</span>
+        
+        <div className="space-y-2">
+          <div className="flex justify-between">
+            <label className="text-sm font-medium">Amount</label>
+            <span className="text-sm text-muted-foreground">
+              Balance: {sourceToken ? 
+                mockedTokens.find(t => t.symbol === sourceToken)?.balance || "0.0" 
+                : "0.0"
+              }
+            </span>
           </div>
-          <div className="flex justify-between text-sm">
-            <span>Est. Arrival Time</span>
-            <span>{targetChain.estimatedTime}</span>
-          </div>
-        </div>
-
-        <button 
-          type="submit" 
-          className="w-full p-3 bg-primary text-primary-foreground rounded font-medium"
-          disabled={isProcessing || !amount}
-        >
-          {isProcessing ? "Processing..." : "Bridge Tokens"}
-        </button>
-      </form>
-
-      {txHash && (
-        <div className="mt-4 p-3 bg-green-100 dark:bg-green-900 rounded">
-          <p className="text-sm text-green-800 dark:text-green-200">
-            Transaction submitted! <br />
-            <a 
-              href={`https://etherscan.io/tx/${txHash}`} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="underline"
+          <div className="flex space-x-2">
+            <Input
+              type="text"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              placeholder="0.0"
+              className="flex-1"
+            />
+            <Select 
+              value={sourceToken}
+              onValueChange={setSourceToken}
             >
-              View transaction: {txHash.substring(0, 10)}...
-            </a>
-          </p>
+              <SelectTrigger className="w-[120px]">
+                <SelectValue placeholder="Token" />
+              </SelectTrigger>
+              <SelectContent>
+                {mockedTokens.map((token) => (
+                  <SelectItem key={token.symbol} value={token.symbol}>
+                    {token.symbol}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
-      )}
-    </div>
+        
+        <div className="flex justify-center py-2">
+          <Button variant="outline" size="icon" className="rounded-full">
+            <ArrowDown className="h-4 w-4" />
+          </Button>
+        </div>
+        
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Destination Chain</label>
+          <Select
+            value={destinationChain}
+            onValueChange={setDestinationChain}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select destination chain" />
+            </SelectTrigger>
+            <SelectContent>
+              {supportedChains.map((chain) => (
+                <SelectItem key={chain.id} value={chain.name}>
+                  {chain.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        
+        <div className="space-y-2">
+          <label className="text-sm font-medium">You'll Receive</label>
+          <div className="flex space-x-2">
+            <Input
+              type="text"
+              value={amount ? (parseFloat(amount) - parseFloat(fee)).toFixed(4) : "0.0"}
+              readOnly
+              className="flex-1"
+            />
+            <Select
+              value={destinationToken}
+              onValueChange={setDestinationToken}
+            >
+              <SelectTrigger className="w-[120px]">
+                <SelectValue placeholder="Token" />
+              </SelectTrigger>
+              <SelectContent>
+                {mockedTokens.map((token) => (
+                  <SelectItem key={token.symbol} value={token.symbol}>
+                    {token.symbol}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        
+        <div className="mt-4 p-3 bg-muted rounded-md text-sm">
+          <div className="flex justify-between mb-1">
+            <span>Bridge Fee</span>
+            <span>{fee} {sourceToken}</span>
+          </div>
+          <div className="flex justify-between mb-1">
+            <span>Estimated Time</span>
+            <span>
+              {sourceChain && destinationChain ? 
+                supportedChains.find(c => c.name === destinationChain)?.estimatedTime || "Unknown" 
+                : "Unknown"
+              }
+            </span>
+          </div>
+          <div className="flex items-center text-xs text-muted-foreground mt-2">
+            <Info className="h-3 w-3 mr-1" />
+            Bridge fees vary by network congestion and token
+          </div>
+        </div>
+      </CardContent>
+      
+      <CardFooter>
+        <Button 
+          onClick={handleBridgeSubmit}
+          className="w-full"
+          disabled={!sourceChain || !destinationChain || !sourceToken || !destinationToken || !amount}
+        >
+          Bridge Tokens
+        </Button>
+      </CardFooter>
+    </Card>
   );
-}
+};
+
+export default CrossChainBridge;

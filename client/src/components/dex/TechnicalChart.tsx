@@ -1,42 +1,39 @@
 
-import React from 'react';
+import React, { useEffect, useRef } from "react";
 
-interface TechnicalChartProps {
-  symbol?: string;
-  timeframe?: string;
-}
+export const TechnicalChart = () => {
+  const chartRef = useRef<HTMLDivElement>(null);
 
-export function TechnicalChart({ symbol = 'BTCUSDT', timeframe = '1d' }: TechnicalChartProps) {
+  useEffect(() => {
+    if (!chartRef.current) return;
+    
+    // Initialize chart container
+    const chartContainer = chartRef.current;
+    chartContainer.innerHTML = '<div class="flex items-center justify-center h-80 bg-card rounded-md border border-border p-4">Technical chart loading...</div>';
+    
+    // In a real implementation, you would initialize your chart library here
+    // For example with lightweight-charts or Chart.js
+    
+    return () => {
+      // Cleanup chart resources when component unmounts
+      if (chartContainer) {
+        chartContainer.innerHTML = '';
+      }
+    };
+  }, []);
+
   return (
-    <div className="bg-card rounded-xl p-6 shadow-lg">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold">{symbol} Price Chart</h2>
-        <div className="flex gap-2">
-          <button className="px-2 py-1 text-xs rounded bg-muted">1h</button>
-          <button className="px-2 py-1 text-xs rounded bg-primary text-primary-foreground">1d</button>
-          <button className="px-2 py-1 text-xs rounded bg-muted">1w</button>
-          <button className="px-2 py-1 text-xs rounded bg-muted">1m</button>
-        </div>
+    <div className="w-full rounded-lg border border-border bg-card">
+      <div className="p-4 border-b border-border">
+        <h3 className="text-lg font-semibold">Price Chart</h3>
       </div>
-      
-      <div className="aspect-video bg-muted rounded flex items-center justify-center">
-        <p className="text-muted-foreground">Chart visualization will appear here</p>
-      </div>
-      
-      <div className="mt-4 grid grid-cols-3 gap-4 text-center">
-        <div>
-          <p className="text-xs text-muted-foreground">24h Change</p>
-          <p className="text-green-500">+2.45%</p>
-        </div>
-        <div>
-          <p className="text-xs text-muted-foreground">24h Volume</p>
-          <p>$1.2B</p>
-        </div>
-        <div>
-          <p className="text-xs text-muted-foreground">Market Cap</p>
-          <p>$43.8B</p>
-        </div>
-      </div>
+      <div 
+        ref={chartRef} 
+        id="priceChart" 
+        className="w-full h-80"
+      />
     </div>
   );
-}
+};
+
+export default TechnicalChart;
