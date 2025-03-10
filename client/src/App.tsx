@@ -21,17 +21,17 @@ function Router() {
 function App() {
   return (
     <WagmiProvider config={wagmiConfig}>
-      <RainbowKitProvider 
-        theme={darkTheme({
-          accentColor: '#a855f7', 
-          borderRadius: 'medium'
-        })}
-      >
-        <QueryClientProvider client={queryClient}>
+      <QueryClientProvider client={queryClient}>
+        <RainbowKitProvider 
+          theme={darkTheme({
+            accentColor: '#a855f7', 
+            borderRadius: 'medium'
+          })}
+        >
           <Router />
           <Toaster />
-        </QueryClientProvider>
-      </RainbowKitProvider>
+        </RainbowKitProvider>
+      </QueryClientProvider>
     </WagmiProvider>
   );
 }
