@@ -21,7 +21,8 @@ import {
   Title,
   Tooltip,
   Legend,
-  Filler
+  Filler,
+  BarElement
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 
@@ -31,6 +32,7 @@ ChartJS.register(
   LinearScale,
   PointElement,
   LineElement,
+  BarElement,
   Title,
   Tooltip,
   Legend,
@@ -74,13 +76,6 @@ export function TechnicalChart() {
               borderColor: 'rgb(75, 192, 192)',
               tension: 0.1,
               fill: false
-            },
-            {
-              label: 'Volume',
-              data: mockData.volumes,
-              type: 'bar',
-              backgroundColor: 'rgba(53, 162, 235, 0.5)',
-              yAxisID: 'volume'
             },
             ...(indicators.ma.enabled ? [{
               label: 'MA',
@@ -183,15 +178,24 @@ export function TechnicalChart() {
                     type: 'linear',
                     display: true,
                     position: 'left',
-                  },
-                  volume: {
-                    type: 'linear',
-                    display: true,
-                    position: 'right',
                     grid: {
-                      drawOnChartArea: false,
+                      color: 'rgba(255, 255, 255, 0.1)'
                     },
+                    ticks: {
+                      color: 'rgba(255, 255, 255, 0.8)'
+                    }
+                  }
+                },
+                plugins: {
+                  legend: {
+                    labels: {
+                      color: 'rgba(255, 255, 255, 0.8)'
+                    }
                   },
+                  tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    bodyColor: '#fff'
+                  }
                 }
               }}
             />
@@ -236,10 +240,10 @@ export function TechnicalChart() {
 
 // Helper functions for technical indicators
 function calculateMA(prices: number[], period: number): number[] {
-  const ma = [];
+  const ma: number[] = [];
   for (let i = 0; i < prices.length; i++) {
     if (i < period - 1) {
-      ma.push(null);
+      ma.push(0);
       continue;
     }
     const slice = prices.slice(i - period + 1, i + 1);
@@ -252,12 +256,12 @@ function calculateMA(prices: number[], period: number): number[] {
 function calculateEMA(prices: number[], period: number): number[] {
   const multiplier = 2 / (period + 1);
   const ema = [prices[0]];
-  
+
   for (let i = 1; i < prices.length; i++) {
     const newEMA = (prices[i] - ema[i - 1]) * multiplier + ema[i - 1];
     ema.push(newEMA);
   }
-  
+
   return ema;
 }
 
@@ -265,21 +269,21 @@ function generateMockData() {
   const timestamps = [];
   const prices = [];
   const volumes = [];
-  
+
   const basePrice = 1800; // Example ETH price
   const baseVolume = 100000;
-  
+
   for (let i = 30; i >= 0; i--) {
     const date = new Date();
     date.setDate(date.getDate() - i);
     timestamps.push(date.toLocaleDateString());
-    
+
     const randomPrice = basePrice * (1 + (Math.random() - 0.5) * 0.02);
     const randomVolume = baseVolume * (1 + (Math.random() - 0.5) * 0.5);
-    
+
     prices.push(randomPrice);
     volumes.push(randomVolume);
   }
-  
+
   return { timestamps, prices, volumes };
 }
