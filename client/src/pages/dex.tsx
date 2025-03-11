@@ -10,12 +10,13 @@ import { Portfolio } from "@/components/dex/Portfolio";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link } from "wouter";
-// Added import to address the likely missing component
-import { TechnicalChart } from "@/components/dex/TechnicalChart"; // Assumed correct path
+import { SingleTokenChart } from "@/components/dex/SingleTokenChart";
 
 
 export default function DexPage() {
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedToken, setSelectedToken] = useState("BTC"); // Default to BTC
+  const availableTokens = ["BTC", "ETH", "DAI", "USDC", "USDT"]; // Example tokens
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -91,25 +92,28 @@ export default function DexPage() {
 
             <div className="lg:col-span-8">
               <Card className="p-6 bg-opacity-20 backdrop-blur-lg">
+                <div>
+                  <label htmlFor="tokenSelect">Select Token:</label>
+                  <select id="tokenSelect" value={selectedToken} onChange={(e) => setSelectedToken(e.target.value)}>
+                    {availableTokens.map((token) => (
+                      <option key={token} value={token}>{token}</option>
+                    ))}
+                  </select>
+                </div>
                 <Tabs defaultValue="chart">
                   <TabsList className="bg-opacity-20">
                     <TabsTrigger value="chart">Price Chart</TabsTrigger>
                     <TabsTrigger value="orderbook">Order Book</TabsTrigger>
                     <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
-                    {/* Added a tab for Technical Chart - a guess based on context */}
-                    <TabsTrigger value="technical">Technical Chart</TabsTrigger>
                   </TabsList>
                   <TabsContent value="chart">
-                    <PriceChart />
+                    <SingleTokenChart token={selectedToken} />
                   </TabsContent>
                   <TabsContent value="orderbook">
                     <OrderBook />
                   </TabsContent>
                   <TabsContent value="portfolio">
                     <Portfolio />
-                  </TabsContent>
-                  <TabsContent value="technical">
-                    <TechnicalChart /> {/* Added the Technical Chart component */}
                   </TabsContent>
                 </Tabs>
               </Card>
