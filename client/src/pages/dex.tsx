@@ -21,16 +21,16 @@ const Layout = ({ children }) => (
           <h1 className="text-2xl font-bold">Dexmond</h1> {/* Simplified logo */}
           <nav className="hidden md:flex gap-4">
             <Link href="/">
-              <span className="text-white font-medium hover:text-primary">TRADE</span>
+              <span className="text-white text-xs font-medium hover:text-primary">Trade</span>
             </Link>
             <Link href="/pools">
-              <span className="text-white font-medium hover:text-primary">POOLS</span>
+              <span className="text-white text-xs font-medium hover:text-primary">Pools</span>
             </Link>
             <Link href="/analytics">
-              <span className="text-white font-medium hover:text-primary">ANALYTICS</span>
+              <span className="text-white text-xs font-medium hover:text-primary">Analytics</span>
             </Link>
             <Link href="/cross-chain">
-              <span className="text-white font-medium hover:text-primary">CROSS-CHAIN</span>
+              <span className="text-white text-xs font-medium hover:text-primary">Cross-Chain</span>
             </Link>
           </nav>
         </div>
