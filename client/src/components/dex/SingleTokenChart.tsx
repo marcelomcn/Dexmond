@@ -166,7 +166,7 @@ export function SingleTokenChart() {
         <h3 className="text-lg font-semibold">Price Chart</h3>
         <Select value={selectedToken} onValueChange={handleTokenChange}>
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select token" />
+            <SelectValue />
           </SelectTrigger>
           <SelectContent>
             {tokenList.map((token) => (
