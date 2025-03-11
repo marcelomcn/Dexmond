@@ -201,7 +201,9 @@ export function LendingMarket() {
                           </div>
                           <Button
                             className="w-full"
-                            onClick={() => {
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
                               setAction('supply');
                               handleAction(pool);
                             }}
@@ -235,7 +237,9 @@ export function LendingMarket() {
                           </div>
                           <Button
                             className="w-full"
-                            onClick={() => {
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation(); {
                               setAction('borrow');
                               handleAction(pool);
                             }}

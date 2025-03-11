@@ -33,13 +33,20 @@ export default function PoolsPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <div className="lg:col-span-12">
               <Card className="p-6">
-                <Tabs defaultValue="pools">
+                <Tabs defaultValue="pools" onValueChange={(value) => {
+                  // Safely handle tab changes
+                  try {
+                    console.log(`Tab changed to: ${value}`);
+                  } catch (error) {
+                    console.error("Error changing tabs:", error);
+                  }
+                }}>
                   <TabsList className="w-full">
-                    <TabsTrigger value="pools" className="flex-1">Liquidity Pools</TabsTrigger>
-                    <TabsTrigger value="farming" className="flex-1">Yield Farming</TabsTrigger>
-                    <TabsTrigger value="lending" className="flex-1">Lending</TabsTrigger>
-                    <TabsTrigger value="bridge" className="flex-1">Bridge</TabsTrigger>
-                    <TabsTrigger value="flash" className="flex-1">Flash Loans</TabsTrigger>
+                    <TabsTrigger value="pools" className="flex-1" onClick={(e) => e.stopPropagation()}>Liquidity Pools</TabsTrigger>
+                    <TabsTrigger value="farming" className="flex-1" onClick={(e) => e.stopPropagation()}>Yield Farming</TabsTrigger>
+                    <TabsTrigger value="lending" className="flex-1" onClick={(e) => e.stopPropagation()}>Lending</TabsTrigger>
+                    <TabsTrigger value="bridge" className="flex-1" onClick={(e) => e.stopPropagation()}>Bridge</TabsTrigger>
+                    <TabsTrigger value="flash" className="flex-1" onClick={(e) => e.stopPropagation()}>Flash Loans</TabsTrigger>
                   </TabsList>
                   <TabsContent value="pools">
                     <LiquidityPools />
