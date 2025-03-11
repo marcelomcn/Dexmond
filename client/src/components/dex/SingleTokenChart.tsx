@@ -96,13 +96,18 @@ export function SingleTokenChart() {
         },
       });
 
-      // Add area series
-      seriesRef.current = chartRef.current.addAreaSeries({
-        topColor: 'rgba(76, 175, 80, 0.56)',
-        bottomColor: 'rgba(76, 175, 80, 0.04)',
-        lineColor: 'rgba(76, 175, 80, 1)',
-        lineWidth: 2,
-      });
+      // Add area series - Added error handling
+      try {
+        seriesRef.current = chartRef.current.addAreaSeries({
+          topColor: 'rgba(76, 175, 80, 0.56)',
+          bottomColor: 'rgba(76, 175, 80, 0.04)',
+          lineColor: 'rgba(76, 175, 80, 1)',
+          lineWidth: 2,
+        });
+      } catch (error) {
+        console.error("Error adding area series:", error);
+      }
+
 
       // Set price data
       if (priceData.length > 0 && seriesRef.current) {
