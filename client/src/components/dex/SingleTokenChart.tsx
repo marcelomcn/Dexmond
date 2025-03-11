@@ -78,11 +78,12 @@ export function SingleTokenChart() {
       }
 
       // Create chart instance using the global LightweightCharts object
-      chartRef.current = window.LightweightCharts.createChart(chartContainerRef.current, {
+      const { createChart } = window.LightweightCharts;
+      chartRef.current = createChart(chartContainerRef.current, {
         width: chartContainerRef.current.clientWidth,
         height: 400,
         layout: {
-          background: { type: window.LightweightCharts.ColorType.Solid, color: 'transparent' },
+          background: { type: 'solid', color: 'transparent' },
           textColor: 'rgba(255, 255, 255, 0.9)',
         },
         grid: {
