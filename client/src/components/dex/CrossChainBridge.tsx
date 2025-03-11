@@ -1,108 +1,116 @@
-import React, { useState } from "react";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { Slider } from "@/components/ui/slider";
+
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export function CrossChainBridge() {
   const [sourceChain, setSourceChain] = useState('ethereum');
   const [destChain, setDestChain] = useState('polygon');
   const [token, setToken] = useState('USDC');
-  const [amount, setAmount] = useState('0');
-  const [slippage, setSlippage] = useState(0.5);
-  const [bridging, setBridging] = useState(false);
-  const [txHash, setTxHash] = useState('');
+  const [amount, setAmount] = useState('');
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleBridge = () => {
-    setBridging(true);
-    // Simulate bridge transaction
-    setTimeout(() => {
-      setBridging(false);
-      setTxHash('0x' + Math.random().toString(16).substring(2, 16) + Math.random().toString(16).substring(2, 16));
-    }, 2000);
+  const handleBridge = async () => {
+    setIsProcessing(true);
+    setError('');
+    setSuccess('');
+    
+    try {
+      // Simulating API call
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      setSuccess(`Successfully bridged ${amount} ${token} from ${sourceChain} to ${destChain}`);
+    } catch (err) {
+      setError('Failed to bridge tokens. Please try again.');
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (
-    <Card>
+    <Card className="w-full max-w-md mx-auto">
       <CardHeader>
-        <CardTitle>Cross-Chain Bridge</CardTitle>
-        <CardDescription>Transfer tokens between different blockchains</CardDescription>
+        <CardTitle>Bridge Tokens</CardTitle>
+        <CardDescription>Transfer tokens across different blockchains</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Source Chain</label>
-            <Select value={sourceChain} onValueChange={setSourceChain}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ethereum">Ethereum</SelectItem>
-                <SelectItem value="polygon">Polygon</SelectItem>
-                <SelectItem value="arbitrum">Arbitrum</SelectItem>
-                <SelectItem value="optimism">Optimism</SelectItem>
-                <SelectItem value="binance">Binance Smart Chain</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Destination Chain</label>
-            <Select value={destChain} onValueChange={setDestChain}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ethereum">Ethereum</SelectItem>
-                <SelectItem value="polygon">Polygon</SelectItem>
-                <SelectItem value="arbitrum">Arbitrum</SelectItem>
-                <SelectItem value="optimism">Optimism</SelectItem>
-                <SelectItem value="binance">Binance Smart Chain</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">Token</label>
-          <Select value={token} onValueChange={setToken}>
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Source Chain</label>
+          <Select value={sourceChain} onValueChange={setSourceChain}>
             <SelectTrigger>
-              <SelectValue />
+              <SelectValue placeholder="Select chain" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="USDC">USDC</SelectItem>
-              <SelectItem value="USDT">USDT</SelectItem>
-              <SelectItem value="ETH">ETH</SelectItem>
-              <SelectItem value="WBTC">WBTC</SelectItem>
-              <SelectItem value="DAI">DAI</SelectItem>
+              <SelectItem value="ethereum">Ethereum</SelectItem>
+              <SelectItem value="polygon">Polygon</SelectItem>
+              <SelectItem value="bsc">Binance Smart Chain</SelectItem>
+              <SelectItem value="avalanche">Avalanche</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Destination Chain</label>
+          <Select value={destChain} onValueChange={setDestChain}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select chain" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ethereum">Ethereum</SelectItem>
+              <SelectItem value="polygon">Polygon</SelectItem>
+              <SelectItem value="bsc">Binance Smart Chain</SelectItem>
+              <SelectItem value="avalanche">Avalanche</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Amount</label>
-          <Input type="number" placeholder="0.00" value={amount} onChange={(e) => setAmount(e.target.value)} />
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Token</label>
+          <Select value={token} onValueChange={setToken}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select token" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="USDC">USDC</SelectItem>
+              <SelectItem value="USDT">USDT</SelectItem>
+              <SelectItem value="DAI">DAI</SelectItem>
+              <SelectItem value="WETH">WETH</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
-        <div>
-          <div className="flex justify-between mb-1">
-            <label className="block text-sm font-medium">Slippage Tolerance: {slippage}%</label>
-          </div>
-          <Slider defaultValue={[0.5]} min={0.1} max={3} step={0.1} onValueChange={(val) => setSlippage(val[0])} />
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Amount</label>
+          <Input
+            type="number"
+            placeholder="0.0"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+          />
         </div>
 
-        {txHash && (
+        {error && (
+          <Alert variant="destructive">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
+        {success && (
           <Alert>
-            <AlertDescription>
-              Bridge initiated! Transaction hash: <a href="#" className="underline">{txHash}</a>
-            </AlertDescription>
+            <AlertDescription>{success}</AlertDescription>
           </Alert>
         )}
       </CardContent>
       <CardFooter>
-        <Button className="w-full" onClick={handleBridge} disabled={bridging}>
-          {bridging ? "Bridging..." : "Bridge Tokens"}
+        <Button 
+          onClick={handleBridge} 
+          className="w-full"
+          disabled={isProcessing || !amount || parseFloat(amount) <= 0}>
+          {isProcessing ? "Processing..." : "Bridge Tokens"}
         </Button>
       </CardFooter>
     </Card>
