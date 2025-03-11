@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link } from "wouter";
 import { WalletConnect } from "@/components/dex/WalletConnect";
@@ -10,7 +9,7 @@ export const Navbar: React.FC = () => {
     const handleLocationChange = () => {
       setCurrentPath(window.location.pathname);
     };
-    
+
     window.addEventListener('popstate', handleLocationChange);
     return () => window.removeEventListener('popstate', handleLocationChange);
   }, []);
@@ -23,22 +22,22 @@ export const Navbar: React.FC = () => {
         </h1>
         <div className="hidden md:flex gap-4 ml-8">
           <Link href="/">
-            <span className={`text-sm ${currentPath === '/' ? 'text-primary' : 'text-muted-foreground hover:text-primary'} cursor-pointer`}>
+            <span className={`text-sm ${currentPath === '/' ? 'text-primary' : 'text-white hover:text-primary'} cursor-pointer`}>
               Trade
             </span>
           </Link>
           <Link href="/pools">
-            <span className={`text-sm ${currentPath === '/pools' ? 'text-primary' : 'text-muted-foreground hover:text-primary'} cursor-pointer`}>
+            <span className={`text-sm ${currentPath === '/pools' ? 'text-primary' : 'text-white hover:text-primary'} cursor-pointer`}>
               Pools
             </span>
           </Link>
           <Link href="/analytics">
-            <span className={`text-sm ${currentPath === '/analytics' ? 'text-primary' : 'text-muted-foreground hover:text-primary'} cursor-pointer`}>
+            <span className={`text-sm ${currentPath === '/analytics' ? 'text-primary' : 'text-white hover:text-primary'} cursor-pointer`}>
               Analytics
             </span>
           </Link>
           <Link href="/cross-chain">
-            <span className={`text-sm ${currentPath === '/cross-chain' ? 'text-primary' : 'text-muted-foreground hover:text-primary'} cursor-pointer`}>
+            <span className={`text-sm ${currentPath === '/cross-chain' ? 'text-primary' : 'text-white hover:text-primary'} cursor-pointer`}>
               Cross-Chain
             </span>
           </Link>
