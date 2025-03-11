@@ -22,23 +22,23 @@ export const Navbar: React.FC = () => {
         </h1>
         <div className="hidden md:flex gap-4 ml-8">
           <Link href="/">
-            <span className={`text-sm ${currentPath === '/' ? 'text-primary' : 'text-white hover:text-primary'} cursor-pointer`}>
-              Trade
+            <span className={`text-sm font-medium ${currentPath === '/' ? 'text-primary' : 'text-white hover:text-primary'} cursor-pointer`}>
+              TRADE
             </span>
           </Link>
           <Link href="/pools">
-            <span className={`text-sm ${currentPath === '/pools' ? 'text-primary' : 'text-white hover:text-primary'} cursor-pointer`}>
-              Pools
+            <span className={`text-sm font-medium ${currentPath === '/pools' ? 'text-primary' : 'text-white hover:text-primary'} cursor-pointer`}>
+              POOLS
             </span>
           </Link>
           <Link href="/analytics">
-            <span className={`text-sm ${currentPath === '/analytics' ? 'text-primary' : 'text-white hover:text-primary'} cursor-pointer`}>
-              Analytics
+            <span className={`text-sm font-medium ${currentPath === '/analytics' ? 'text-primary' : 'text-white hover:text-primary'} cursor-pointer`}>
+              ANALYTICS
             </span>
           </Link>
           <Link href="/cross-chain">
-            <span className={`text-sm ${currentPath === '/cross-chain' ? 'text-primary' : 'text-white hover:text-primary'} cursor-pointer`}>
-              Cross-Chain
+            <span className={`text-sm font-medium ${currentPath === '/cross-chain' ? 'text-primary' : 'text-white hover:text-primary'} cursor-pointer`}>
+              CROSS-CHAIN
             </span>
           </Link>
         </div>
