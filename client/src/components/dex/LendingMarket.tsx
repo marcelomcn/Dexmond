@@ -239,7 +239,7 @@ export function LendingMarket() {
                             className="w-full"
                             onClick={(e) => {
                               e.preventDefault();
-                              e.stopPropagation(); {
+                              e.stopPropagation();
                               setAction('borrow');
                               handleAction(pool);
                             }}
