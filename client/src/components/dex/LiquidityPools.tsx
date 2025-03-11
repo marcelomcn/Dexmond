@@ -185,7 +185,10 @@ export function LiquidityPools() {
                         </div>
                         <Button
                           className="w-full"
-                          onClick={() => handleAddLiquidity(pool)}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleAddLiquidity(pool);
+                          }}
                         >
                           Add Liquidity
                         </Button>
