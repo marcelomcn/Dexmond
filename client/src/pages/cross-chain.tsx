@@ -6,8 +6,8 @@ import { WalletConnect } from "@/components/dex/WalletConnect";
 import { Link } from "wouter";
 
 // Error boundary component
-class ErrorBoundary extends React.Component {
-  constructor(props) {
+class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean}> {
+  constructor(props: {children: React.ReactNode}) {
     super(props);
     this.state = { hasError: false };
   }
