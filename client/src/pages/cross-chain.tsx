@@ -2,7 +2,7 @@
 import React from "react";
 import { CrossChainBridge } from "../components/dex/CrossChainBridge";
 import { CrossChainSwap } from "../components/dex/CrossChainSwap";
-import { WalletConnect } from "../components/WalletConnect";
+import { WalletConnect } from "../components/ui/wallet-connect";
 
 export default function CrossChainPage() {
   return (
