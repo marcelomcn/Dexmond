@@ -1,88 +1,100 @@
 
-import React, { Suspense, ErrorBoundary, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { CrossChainBridge } from "../components/dex/CrossChainBridge";
 import { CrossChainSwap } from "../components/dex/CrossChainSwap";
 import { WalletConnect } from "@/components/dex/WalletConnect";
+import { Link } from "wouter";
 
 // Error boundary component
-class ErrorFallback extends React.Component<{children: React.ReactNode}> {
-  state = { hasError: false, error: null };
-  
-  static getDerivedStateFromError(error: any) {
-    return { hasError: true, error };
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
   }
-  
-  componentDidCatch(error: any, errorInfo: any) {
-    console.error("Cross-chain component failed:", error, errorInfo);
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true };
   }
-  
+
+  componentDidCatch(error, errorInfo) {
+    console.error("Cross-chain page error:", error, errorInfo);
+  }
+
   render() {
     if (this.state.hasError) {
       return (
-        <div className="p-4 border border-red-300 rounded-md bg-red-50 text-red-800">
-          <h3 className="text-lg font-medium">Something went wrong</h3>
-          <button 
-            className="mt-2 px-4 py-2 bg-red-100 hover:bg-red-200 rounded-md"
-            onClick={() => this.setState({ hasError: false })}
-          >
-            Try again
-          </button>
+        <div className="p-8 text-center">
+          <h2 className="text-2xl font-bold text-red-500">Something went wrong</h2>
+          <p className="mt-4">Please try refreshing the page or contact support.</p>
         </div>
       );
     }
-    
+
     return this.props.children;
   }
 }
 
-// Loading component
-const Loading = () => (
-  <div className="flex items-center justify-center w-full h-48">
-    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+// Loading fallback component
+const LoadingFallback = () => (
+  <div className="flex items-center justify-center min-h-screen">
+    <div className="flex flex-col items-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      <p className="mt-4 text-muted-foreground">Loading cross-chain features...</p>
+    </div>
   </div>
 );
 
 export default function CrossChainPage() {
-  const [isLoaded, setIsLoaded] = useState(false);
-  
-  React.useEffect(() => {
-    // Simulate data loading to prevent immediate suspense
-    const timer = setTimeout(() => {
-      setIsLoaded(true);
-    }, 100);
-    
-    return () => clearTimeout(timer);
-  }, []);
-  
-  if (!isLoaded) {
-    return <Loading />;
-  }
-  
+  const [activeTab, setActiveTab] = useState("swap");
+
   return (
-    <div className="container mx-auto p-4 max-w-7xl">
-      <h1 className="text-3xl font-bold mb-8 text-center">
-        Cross-Chain Bridge
-      </h1>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <ErrorFallback>
-          <Suspense fallback={<Loading />}>
-            <div>
-              <WalletConnect />
-              <div className="mt-4">
-                <CrossChainBridge />
+    <div className="min-h-screen bg-transparent p-4 md:p-8 dex-fade-in">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex flex-col gap-6">
+          <header className="flex justify-between items-center">
+            <div className="flex items-center gap-4">
+              <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-400">
+                Dexmond
+              </h1>
+              <div className="hidden md:flex gap-4 ml-8">
+                <Link href="/">
+                  <span className="text-sm text-muted-foreground hover:text-primary cursor-pointer">Trade</span>
+                </Link>
+                <Link href="/pools">
+                  <span className="text-sm text-muted-foreground hover:text-primary cursor-pointer">Pools</span>
+                </Link>
+                <Link href="/analytics">
+                  <span className="text-sm text-muted-foreground hover:text-primary cursor-pointer">Analytics</span>
+                </Link>
+                <Link href="/cross-chain">
+                  <span className="text-sm text-primary cursor-pointer">Cross-Chain</span>
+                </Link>
               </div>
             </div>
-          </Suspense>
-        </ErrorFallback>
-        
-        <ErrorFallback>
-          <Suspense fallback={<Loading />}>
-            <div>
-              <CrossChainSwap />
-            </div>
-          </Suspense>
-        </ErrorFallback>
+            <WalletConnect />
+          </header>
+
+          <div className="flex gap-4 mb-4 border-b border-border">
+            <button
+              className={`px-4 py-2 ${activeTab === "swap" ? "border-b-2 border-primary text-primary" : "text-muted-foreground"}`}
+              onClick={() => setActiveTab("swap")}
+            >
+              Cross-Chain Swap
+            </button>
+            <button
+              className={`px-4 py-2 ${activeTab === "bridge" ? "border-b-2 border-primary text-primary" : "text-muted-foreground"}`}
+              onClick={() => setActiveTab("bridge")}
+            >
+              Bridge Assets
+            </button>
+          </div>
+
+          <ErrorBoundary>
+            <Suspense fallback={<LoadingFallback />}>
+              {activeTab === "swap" ? <CrossChainSwap /> : <CrossChainBridge />}
+            </Suspense>
+          </ErrorBoundary>
+        </div>
       </div>
     </div>
   );

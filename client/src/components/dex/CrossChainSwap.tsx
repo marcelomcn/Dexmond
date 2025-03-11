@@ -229,3 +229,145 @@ export const CrossChainSwap = () => {
     </Card>
   );
 };
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+
+export function CrossChainSwap() {
+  const [fromChain, setFromChain] = useState('ethereum');
+  const [toChain, setToChain] = useState('polygon');
+  const [fromToken, setFromToken] = useState('ETH');
+  const [toToken, setToToken] = useState('MATIC');
+  const [amount, setAmount] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSwap = async () => {
+    if (!amount) {
+      alert('Please enter an amount');
+      return;
+    }
+    
+    setIsLoading(true);
+    // Simulate API call
+    setTimeout(() => {
+      setIsLoading(false);
+      alert('This is a demo. In a real application, this would initiate a cross-chain swap.');
+    }, 2000);
+  };
+
+  return (
+    <Card className="w-full max-w-md mx-auto bg-card shadow-lg border-border">
+      <CardHeader>
+        <CardTitle>Cross-Chain Swap</CardTitle>
+        <CardDescription>Swap tokens across different blockchain networks</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-2">
+          <div className="flex justify-between">
+            <label className="text-sm font-medium">From Chain</label>
+            <label className="text-sm font-medium">From Token</label>
+          </div>
+          <div className="flex gap-2">
+            <Select value={fromChain} onValueChange={setFromChain}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select chain" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ethereum">Ethereum</SelectItem>
+                <SelectItem value="bsc">Binance Smart Chain</SelectItem>
+                <SelectItem value="avalanche">Avalanche</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={fromToken} onValueChange={setFromToken}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select token" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ETH">ETH</SelectItem>
+                <SelectItem value="USDT">USDT</SelectItem>
+                <SelectItem value="USDC">USDC</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="border-4 border-background rounded-full bg-muted p-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground">
+                <path d="M7 10l5 5 5-5"/>
+                <path d="M7 15l5-5 5 5"/>
+              </svg>
+            </div>
+          </div>
+          <div className="h-12"></div>
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex justify-between">
+            <label className="text-sm font-medium">To Chain</label>
+            <label className="text-sm font-medium">To Token</label>
+          </div>
+          <div className="flex gap-2">
+            <Select value={toChain} onValueChange={setToChain}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select chain" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="polygon">Polygon</SelectItem>
+                <SelectItem value="optimism">Optimism</SelectItem>
+                <SelectItem value="arbitrum">Arbitrum</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={toToken} onValueChange={setToToken}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select token" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="MATIC">MATIC</SelectItem>
+                <SelectItem value="USDT">USDT</SelectItem>
+                <SelectItem value="USDC">USDC</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <div>
+          <label className="text-sm font-medium">Amount</label>
+          <Input 
+            type="number" 
+            placeholder="0.0" 
+            value={amount} 
+            onChange={(e) => setAmount(e.target.value)}
+          />
+        </div>
+
+        <div className="flex justify-between text-sm text-muted-foreground">
+          <span>Estimated Fee:</span>
+          <span>0.005 {fromToken}</span>
+        </div>
+      </CardContent>
+      <CardFooter>
+        <Button 
+          onClick={handleSwap} 
+          disabled={isLoading} 
+          className="w-full bg-gradient-to-r from-purple-500 to-blue-500"
+        >
+          {isLoading ? (
+            <>
+              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Processing...
+            </>
+          ) : (
+            'Swap'
+          )}
+        </Button>
+      </CardFooter>
+    </Card>
+  );
+}

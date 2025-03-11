@@ -118,13 +118,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'Missing token parameter' });
       }
 
-      // Use CoinGecko API for historical price data
-      const response = await axios.get(`https://api.coingecko.com/api/v3/coins/${token}/market_chart`, {
-        params: {
-          vs_currency,
-          days
+      // Use CoinGecko API for historical price data with retry logic
+      let retries = 3;
+      let response;
+      
+      while (retries > 0) {
+        try {
+          response = await axios.get(`https://api.coingecko.com/api/v3/coins/${token}/market_chart`, {
+            params: {
+              vs_currency,
+              days
+            },
+            timeout: 10000
+          });
+          break; // Success, exit the retry loop
+        } catch (error) {
+          retries--;
+          if (retries === 0) throw error;
+          // Wait before retrying (exponential backoff)
+          await new Promise(resolve => setTimeout(resolve, (4 - retries) * 1000));
         }
-      });
+      }
+
+      if (!response || !response.data || !response.data.prices || !Array.isArray(response.data.prices)) {
+        return res.status(500).json({ error: 'Invalid data format from price API' });
+      }
 
       // Format data for candlestick chart
       const priceData = response.data.prices;
