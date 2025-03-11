@@ -103,7 +103,7 @@ export function LiquidityPools() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" onClick={(e) => e.stopPropagation()}>
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-semibold">Liquidity Pools</h2>
         <Dialog>
@@ -138,8 +138,8 @@ export function LiquidityPools() {
           </TableHeader>
           <TableBody>
             {pools.map((pool) => (
-              <TableRow key={pool.id}>
-                <TableCell className="font-medium" onClick={(e) => e.preventDefault()}>
+              <TableRow key={pool.id} onClick={(e) => e.stopPropagation()}>
+                <TableCell className="font-medium">
                   {pool.token0.symbol}/{pool.token1.symbol}
                 </TableCell>
                 <TableCell>{formatCurrency(pool.tvl)}</TableCell>

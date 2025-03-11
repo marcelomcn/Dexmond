@@ -74,10 +74,16 @@ export default function DexPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <div className="lg:col-span-4 space-y-6">
               <Card className="p-6 bg-opacity-20 backdrop-blur-lg">
-                <Tabs defaultValue="swap">
+                <Tabs defaultValue="swap" onValueChange={(value) => {
+                  try {
+                    console.log(`Tab changed to: ${value}`);
+                  } catch (error) {
+                    console.error("Error changing tabs:", error);
+                  }
+                }}>
                   <TabsList className="w-full">
-                    <TabsTrigger value="swap" className="flex-1">Quick Swap</TabsTrigger>
-                    <TabsTrigger value="advanced" className="flex-1">Advanced</TabsTrigger>
+                    <TabsTrigger value="swap" className="flex-1" onClick={(e) => e.stopPropagation()}>Quick Swap</TabsTrigger>
+                    <TabsTrigger value="advanced" className="flex-1" onClick={(e) => e.stopPropagation()}>Advanced</TabsTrigger>
                   </TabsList>
                   <TabsContent value="swap">
                     <TokenSwap />
