@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { CrossChainBridge } from "../components/dex/CrossChainBridge";
 import { CrossChainSwap } from "../components/dex/CrossChainSwap";
 import { Layout } from "@/components/layout/Layout";
@@ -49,28 +49,26 @@ export default function CrossChainPage() {
   return (
     <Layout>
       <div className="flex flex-col gap-6">
-
-          <div className="flex gap-4 mb-4 border-b border-border">
-            <button
-              className={`px-4 py-2 ${activeTab === "swap" ? "border-b-2 border-primary text-primary" : "text-muted-foreground"}`}
-              onClick={() => setActiveTab("swap")}
-            >
-              Cross-Chain Swap
-            </button>
-            <button
-              className={`px-4 py-2 ${activeTab === "bridge" ? "border-b-2 border-primary text-primary" : "text-muted-foreground"}`}
-              onClick={() => setActiveTab("bridge")}
-            >
-              Bridge Assets
-            </button>
-          </div>
-
-          <ErrorBoundary>
-            <Suspense fallback={<LoadingFallback />}>
-              {activeTab === "swap" ? <CrossChainSwap /> : <CrossChainBridge />}
-            </Suspense>
-          </ErrorBoundary>
+        <div className="flex gap-4 mb-4 border-b border-border">
+          <button
+            className={`px-4 py-2 ${activeTab === "swap" ? "border-b-2 border-primary text-primary" : "text-muted-foreground"}`}
+            onClick={() => setActiveTab("swap")}
+          >
+            Cross-Chain Swap
+          </button>
+          <button
+            className={`px-4 py-2 ${activeTab === "bridge" ? "border-b-2 border-primary text-primary" : "text-muted-foreground"}`}
+            onClick={() => setActiveTab("bridge")}
+          >
+            Bridge Assets
+          </button>
         </div>
+
+        <ErrorBoundary>
+          <Suspense fallback={<LoadingFallback />}>
+            {activeTab === "swap" ? <CrossChainSwap /> : <CrossChainBridge />}
+          </Suspense>
+        </ErrorBoundary>
       </div>
     </Layout>
   );
