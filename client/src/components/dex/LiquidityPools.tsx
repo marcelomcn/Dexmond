@@ -139,7 +139,7 @@ export function LiquidityPools() {
           <TableBody>
             {pools.map((pool) => (
               <TableRow key={pool.id}>
-                <TableCell className="font-medium">
+                <TableCell className="font-medium" onClick={(e) => e.preventDefault()}>
                   {pool.token0.symbol}/{pool.token1.symbol}
                 </TableCell>
                 <TableCell>{formatCurrency(pool.tvl)}</TableCell>
