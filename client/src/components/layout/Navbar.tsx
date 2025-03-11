@@ -16,7 +16,7 @@ export const Navbar: React.FC = () => {
   }, []);
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-sm border-b border-border flex justify-between items-center p-4">
+    <header className="sticky top-0 z-50 w-full bg-transparent backdrop-blur-sm border-b border-border/50 flex justify-between items-center p-4">
       <div className="flex items-center gap-4">
         <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-400">
           Dexmond
