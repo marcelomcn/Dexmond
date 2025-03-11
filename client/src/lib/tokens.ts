@@ -195,3 +195,93 @@ export const addCustomToken = async (
     return null;
   }
 };
+// Token list with real addresses for Ethereum mainnet
+export const tokenList = [
+  {
+    symbol: 'ETH',
+    name: 'Ethereum',
+    address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE', // Special address for native ETH
+    decimals: 18,
+    logoURI: 'https://tokens.1inch.io/0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.png'
+  },
+  {
+    symbol: 'USDC',
+    name: 'USD Coin',
+    address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+    decimals: 6,
+    logoURI: 'https://tokens.1inch.io/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.png'
+  },
+  {
+    symbol: 'USDT',
+    name: 'Tether USD',
+    address: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+    decimals: 6,
+    logoURI: 'https://tokens.1inch.io/0xdac17f958d2ee523a2206206994597c13d831ec7.png'
+  },
+  {
+    symbol: 'DAI',
+    name: 'Dai Stablecoin',
+    address: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+    decimals: 18,
+    logoURI: 'https://tokens.1inch.io/0x6b175474e89094c44da98b954eedeac495271d0f.png'
+  },
+  {
+    symbol: 'WBTC',
+    name: 'Wrapped BTC',
+    address: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
+    decimals: 8,
+    logoURI: 'https://tokens.1inch.io/0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.png'
+  },
+  {
+    symbol: 'BTC',
+    name: 'Bitcoin',
+    address: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599', // Using WBTC address for representation
+    decimals: 8,
+    logoURI: 'https://tokens.1inch.io/0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.png'
+  },
+  {
+    symbol: 'UNI',
+    name: 'Uniswap',
+    address: '0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984',
+    decimals: 18,
+    logoURI: 'https://tokens.1inch.io/0x1f9840a85d5af5bf1d1762f925bdaddc4201f984.png'
+  },
+  {
+    symbol: 'LINK',
+    name: 'ChainLink Token',
+    address: '0x514910771AF9Ca656af840dff83E8264EcF986CA',
+    decimals: 18,
+    logoURI: 'https://tokens.1inch.io/0x514910771af9ca656af840dff83e8264ecf986ca.png'
+  },
+  {
+    symbol: 'AAVE',
+    name: 'Aave Token',
+    address: '0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9',
+    decimals: 18,
+    logoURI: 'https://tokens.1inch.io/0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9.png'
+  },
+  {
+    symbol: 'COMP',
+    name: 'Compound',
+    address: '0xc00e94Cb662C3520282E6f5717214004A7f26888',
+    decimals: 18,
+    logoURI: 'https://tokens.1inch.io/0xc00e94cb662c3520282e6f5717214004a7f26888.png'
+  },
+  {
+    symbol: 'SUSHI',
+    name: 'SushiToken',
+    address: '0x6B3595068778DD592e39A122f4f5a5cF09C90fE2',
+    decimals: 18,
+    logoURI: 'https://tokens.1inch.io/0x6b3595068778dd592e39a122f4f5a5cf09c90fe2.png'
+  }
+];
+
+// Add a function to get token by symbol
+export function getTokenBySymbol(symbol: string) {
+  return tokenList.find(token => token.symbol === symbol);
+}
+
+// Add a function to get all token symbols
+export function getAllTokenSymbols() {
+  return tokenList.map(token => token.symbol);
+}
