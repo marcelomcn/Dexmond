@@ -92,14 +92,6 @@ export default function DexPage() {
 
             <div className="lg:col-span-8">
               <Card className="p-6 bg-opacity-20 backdrop-blur-lg">
-                <div>
-                  <label htmlFor="tokenSelect">Select Token:</label>
-                  <select id="tokenSelect" value={selectedToken} onChange={(e) => setSelectedToken(e.target.value)}>
-                    {availableTokens.map((token) => (
-                      <option key={token} value={token}>{token}</option>
-                    ))}
-                  </select>
-                </div>
                 <Tabs defaultValue="chart">
                   <TabsList className="bg-opacity-20">
                     <TabsTrigger value="chart">Price Chart</TabsTrigger>
