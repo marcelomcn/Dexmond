@@ -94,14 +94,14 @@
         <span class="wallet-status" id="walletStatus"></span>
       </div>
     </header>
-    
+
     <main class="main">
       <div class="swap-container">
         <div class="swap-header">
           <div class="swap-title">Swap</div>
           <div class="settings-icon" id="settingsButton">⚙️</div>
         </div>
-        
+
         <div class="token-input">
           <div class="token-input-header">
             <div>You Pay</div>
@@ -115,13 +115,13 @@
             </div>
           </div>
         </div>
-        
+
         <div class="swap-arrow">
           <div class="swap-arrow-button" id="swapTokens">
             ↓
           </div>
         </div>
-        
+
         <div class="token-input">
           <div class="token-input-header">
             <div>You Receive</div>
@@ -135,7 +135,7 @@
             </div>
           </div>
         </div>
-        
+
         <div class="swap-details">
           <div class="detail-row">
             <div>Rate</div>
@@ -154,24 +154,24 @@
             <div id="networkFee">~$0.00</div>
           </div>
         </div>
-        
+
         <div class="swap-button-container">
           <button class="swap-button" id="swapButton" disabled>Connect Wallet</button>
           <div class="error-message" id="errorMessage"></div>
         </div>
       </div>
-      
+
       <div class="market-info">
         <div class="market-header">Market</div>
         <div class="market-tabs">
           <div class="market-tab active" data-tab="chart">Price Chart</div>
           <div class="market-tab" data-tab="orderbook">Order Book</div>
         </div>
-        
+
         <div class="price-chart" id="priceChart">
           <div class="chart-placeholder">Chart will load after selecting tokens</div>
         </div>
-        
+
         <div class="order-book" id="orderBook" style="display: none;">
           <div class="order-header">
             <div>Price</div>
@@ -185,7 +185,7 @@
       </div>
     </main>
   </div>
-  
+
   <!-- Token Selection Modal -->
   <div class="modal" id="tokenModal">
     <div class="modal-content">
@@ -231,31 +231,29 @@
       </div>
     </div>
   </div>
-  
+
   <!-- Loading Overlay -->
   <div class="loading-overlay" id="loadingOverlay">
     <div class="spinner"></div>
     <div class="tx-status" id="txStatus">Waiting for confirmation...</div>
   </div>
-  
-  </div> <!-- Close the container div -->
-  
-  <!-- Footer - Moved outside of container -->
+
+  <!-- Footer -->
   <footer class="footer">
     <div class="footer-content">
       For any enquiry please contact support@dexmond.com, our team of beavers will look into it. DEXMOND TEAM
     </div>
   </footer>
-  
+
   <!-- Main application scripts -->
   <!-- Load web3 and ethers library from CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.8.1/web3.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lightweight-charts/3.8.0/lightweight-charts.standalone.production.js"></script>
-  
+
   <!-- Add the new ethereum-utils.js before other scripts -->
   <script src="js/ethereum-utils.js"></script>
-  
+
   <!-- Load application scripts -->
   <script src="js/tokens.js"></script>
   <script src="js/wallet-connect.js"></script>
@@ -263,7 +261,7 @@
   <script src="js/chart.js"></script>
   <script src="js/orderbook.js"></script>
   <script src="js/app.js"></script>
-  
+
   <!-- Initialize error handlers and loading screen animation -->
   <script>
     // Loading animation - use function reference instead of setTimeout with string
@@ -271,7 +269,7 @@
       const loadingScreen = document.getElementById('initialLoading');
       if (loadingScreen) {
         loadingScreen.classList.add('hide');
-        
+
         // Inner timeout also uses function reference
         setTimeout(function() {
           if (loadingScreen.parentNode) {
@@ -280,7 +278,7 @@
         }, 500);
       }
     };
-    
+
     // Use function reference in setTimeout
     setTimeout(hideLoadingScreen, 3000);
 
@@ -292,12 +290,12 @@
           this.src = '/api/placeholder/24/24';
         };
       });
-      
+
       // Ensure modal close buttons work properly
       document.getElementById('closeModal').addEventListener('click', function() {
         document.getElementById('tokenModal').style.display = 'none';
       });
-      
+
       document.getElementById('closeSettingsModal').addEventListener('click', function() {
         document.getElementById('settingsModal').style.display = 'none';
       });
