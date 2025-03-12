@@ -508,12 +508,19 @@ body {
   text-align: center;
   padding: 20px 0;
   margin-top: 30px;
+  position: relative;
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.2);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .footer-content {
   color: white;
   font-size: 14px;
   opacity: 0.8;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
 }
 
 /* Settings Modal Styles */
