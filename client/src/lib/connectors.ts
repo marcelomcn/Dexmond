@@ -1,31 +1,39 @@
+import { http, createConfig } from 'wagmi';
+import { mainnet, polygon, arbitrum } from 'wagmi/chains';
+import { injected, walletConnect, coinbaseWallet } from 'wagmi/connectors';
 
-import { InjectedConnector } from '@web3-react/injected-connector';
-import { WalletConnectConnector } from '@web3-react/walletconnect-connector';
-import { CoinbaseWalletConnector } from '@web3-react/coinbase-wallet-connector';
+// Define supported chains
+export const chains = [mainnet, polygon, arbitrum];
 
-// Supported chain IDs
-const supportedChainIds = [1, 56, 137]; // Ethereum, BSC, Polygon
+// Create connectors
+export const metamaskConnector = injected();
 
-export const injected = new InjectedConnector({
-  supportedChainIds,
+export const walletConnectConnector = walletConnect({
+  projectId: 'YOUR_WALLET_CONNECT_PROJECT_ID', // Replace with your WalletConnect project ID
 });
 
-export const walletconnect = new WalletConnectConnector({
-  rpc: {
-    1: 'https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
-    56: 'https://bsc-dataseed.binance.org',
-    137: 'https://polygon-rpc.com',
-  },
-  qrcode: true,
-});
-
-export const coinbaseWallet = new CoinbaseWalletConnector({
-  url: 'https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
+export const coinbaseWalletConnector = coinbaseWallet({
   appName: 'Dexmond',
 });
 
+// Create wagmi config
+export const config = createConfig({
+  chains,
+  connectors: [
+    metamaskConnector,
+    walletConnectConnector,
+    coinbaseWalletConnector,
+  ],
+  transports: {
+    [mainnet.id]: http(),
+    [polygon.id]: http(),
+    [arbitrum.id]: http(),
+  },
+});
+
+// Export connectors in format compatible with your existing code
 export const connectors = {
-  MetaMask: injected,
-  WalletConnect: walletconnect,
-  'Coinbase Wallet': coinbaseWallet,
+  MetaMask: metamaskConnector,
+  WalletConnect: walletConnectConnector,
+  'Coinbase Wallet': coinbaseWalletConnector,
 };
