@@ -507,13 +507,13 @@ body {
   width: 100%;
   text-align: center;
   padding: 20px 0;
-  margin-top: 30px;
-  position: relative;
-  z-index: 999;
-  background: rgba(0, 0, 0, 0.4);
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  position: fixed;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.8);
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
   bottom: 0;
   left: 0;
+  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.2);
 }
 
 .footer-content {
@@ -524,6 +524,7 @@ body {
   margin: 0 auto;
   padding: 0 20px;
   font-weight: 500;
+  letter-spacing: 0.5px;
 }
 
 /* Settings Modal Styles */
