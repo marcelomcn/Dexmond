@@ -1,23 +1,3 @@
-
-import React from 'react';
-import { WagmiProvider } from '@/components/providers/WagmiProvider';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-
-// Create a client
-const queryClient = new QueryClient();
-
-function App({ children }) {
-  return (
-    <WagmiProvider>
-      <QueryClientProvider client={queryClient}>
-        {children}
-      </QueryClientProvider>
-    </WagmiProvider>
-  );
-}
-
-export default App;
-
 import React, { Suspense } from "react";
 import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
