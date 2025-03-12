@@ -135,6 +135,22 @@ function createSafeProvider(ethereum) {
 // Wait for the DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', function() {
   initWallet();
+  
+  // Add direct click handler as a fallback
+  const connectButton = document.getElementById('walletConnect');
+  if (connectButton) {
+    console.log("Adding direct click handler to wallet connect button");
+    connectButton.addEventListener('click', function(e) {
+      e.preventDefault();
+      console.log("Connect button clicked directly");
+      if (window.ethereum) {
+        connectWallet();
+      } else {
+        console.error("No ethereum provider available for direct connection");
+        connectButton.textContent = 'No Wallet Provider';
+      }
+    });
+  }
 });
 
 // Debug function to help identify wallet detection issues
@@ -148,7 +164,7 @@ function debugWalletDetection() {
 }
 
 // Wait for ethereum to be injected if needed
-function waitForEthereum(callback, maxAttempts = 10) {
+function waitForEthereum(callback, maxAttempts = 15) {
   let attempts = 0;
   
   const checkForEthereum = () => {
@@ -156,7 +172,15 @@ function waitForEthereum(callback, maxAttempts = 10) {
     console.log(`Checking for ethereum (attempt ${attempts})`);
     
     if (window.ethereum) {
-      console.log("Found ethereum!");
+      console.log("Found ethereum provider:", window.ethereum);
+      callback();
+      return;
+    }
+    
+    // Check for alternate provider locations (some browser extensions use different patterns)
+    if (window.web3 && window.web3.currentProvider) {
+      console.log("Found legacy web3 provider");
+      window.ethereum = window.web3.currentProvider;
       callback();
       return;
     }
@@ -171,8 +195,9 @@ function waitForEthereum(callback, maxAttempts = 10) {
       return;
     }
     
-    // Use function reference instead of string for setTimeout
-    setTimeout(checkForEthereum, 200);
+    // Increase timeout for later attempts
+    const timeout = attempts < 5 ? 200 : 400;
+    setTimeout(checkForEthereum, timeout);
   };
   
   checkForEthereum();
@@ -239,7 +264,7 @@ async function connectWallet() {
   const connectButton = document.getElementById('walletConnect');
   const walletStatus = document.getElementById('walletStatus');
   
-  if (!window.ethereum || !provider) {
+  if (!window.ethereum) {
     console.error("No ethereum provider available");
     connectButton.textContent = 'No Wallet Provider';
     return;
@@ -249,10 +274,17 @@ async function connectWallet() {
     // Show connecting state
     connectButton.textContent = 'Connecting...';
     
-    // Request account access
-    const accounts = await provider.send('eth_requestAccounts', []);
+    // Use direct ethereum request for better compatibility
+    const accounts = await window.ethereum.request({ 
+      method: 'eth_requestAccounts' 
+    });
     
     if (accounts.length > 0) {
+      // Initialize the provider after successful connection if needed
+      if (!provider) {
+        provider = createSafeProvider(window.ethereum);
+      }
+      
       await handleAccountsChanged(accounts);
       return accounts[0];
     } else {

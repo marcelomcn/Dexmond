@@ -6,6 +6,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     loadingScreen.style.display = 'flex';
   }
   
+  console.log("DOM fully loaded, initializing application");
+  console.log("Checking for ethereum provider:", window.ethereum ? "Found" : "Not found");
+  
   try {
     // Initialize wallet connection
     await initWallet();
