@@ -502,6 +502,16 @@ body {
   to { opacity: 0; }
 }
 
+/* Contact Information Styles */
+.contact-info {
+  text-align: center;
+  color: white;
+  padding: 20px;
+  margin-top: 30px;
+  font-size: 14px;
+  opacity: 0.8;
+}
+
 /* Settings Modal Styles */
 .settings-modal {
   display: none;
