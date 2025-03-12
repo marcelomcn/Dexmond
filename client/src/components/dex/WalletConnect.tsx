@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { injected, walletconnect, coinbaseWallet, connectors } from '@/lib/wagmi';
+import { injected, walletconnect, coinbaseWallet } from '@/lib/connectors';
 
 export function WalletConnect() {
   const [isConnected, setIsConnected] = useState(false);
@@ -43,8 +43,9 @@ export function WalletConnect() {
 
   const connectWalletConnect = async () => {
     try {
-      const provider = await walletconnect.activate();
-      const accounts = await provider.getAccounts();
+      await walletconnect.activate();
+      const provider = await walletconnect.getProvider();
+      const accounts = await provider.request({ method: 'eth_accounts' });
       setWalletAddress(accounts[0]);
       setIsConnected(true);
       setConnectedWalletType('WalletConnect');
@@ -56,8 +57,9 @@ export function WalletConnect() {
 
   const connectCoinbaseWallet = async () => {
     try {
-      const provider = await coinbaseWallet.activate();
-      const accounts = await provider.getAccounts();
+      await coinbaseWallet.activate();
+      const provider = await coinbaseWallet.getProvider();
+      const accounts = await provider.request({ method: 'eth_accounts' });
       setWalletAddress(accounts[0]);
       setIsConnected(true);
       setConnectedWalletType('Coinbase');
@@ -126,18 +128,7 @@ export function WalletConnect() {
                 <span>Coinbase Wallet</span>
                 <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <rect width="32" height="32" rx="16" fill="#0052FF"/>
-                  <path d="M16 6C10.4769 6 6 10.4769 6 16C6 21.5231 10.4769 26 16 26C21.5231 26 26 21.5231 26 16C26 10.4769 21.5231 6 16 6ZM16 20.8615C13.3085 20.8615 11.1385 18.6915 11.1385 16C11.1385 13.3085 13.3085 11.1385 16 11.1385C18.6915 11.1385 20.8615 13.3085 20.8615 16C20.8615 18.6915 18.6915 20.8615 16 20.8615Z" fill="white"/>
-                </svg>
-              </Button>
-              
-              <Button className="flex items-center justify-between">
-                <span>Rainbow</span>
-                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <rect width="32" height="32" rx="16" fill="#001A4B"/>
-                  <path d="M7.5 11C7.5 9.067 9.067 7.5 11 7.5H21C22.933 7.5 24.5 9.067 24.5 11V21C24.5 22.933 22.933 24.5 21 24.5H11C9.067 24.5 7.5 22.933 7.5 21V11Z" fill="#00CCFF"/>
-                  <path d="M7.5 11C7.5 9.067 9.067 7.5 11 7.5H21C22.933 7.5 24.5 9.067 24.5 11V14.75H7.5V11Z" fill="#0074F0"/>
-                  <path d="M7.5 14.75H24.5V19.25H7.5V14.75Z" fill="#A140FF"/>
-                  <path d="M7.5 19.25H24.5V21C24.5 22.933 22.933 24.5 21 24.5H11C9.067 24.5 7.5 22.933 7.5 21V19.25Z" fill="#FF1F82"/>
+                  <path d="M16 6C10.48 6 6 10.48 6 16C6 21.52 10.48 26 16 26C21.52 26 26 21.52 26 16C26 10.48 21.52 6 16 6ZM16.9 19.15H15.1V21H13.2V19.15H11.4V17.35H13.2V15.5H11.4V13.7H13.2V11.85H15.1V13.7H16.9V15.5H15.1V17.35H16.9V19.15Z" fill="white"/>
                 </svg>
               </Button>
             </div>
