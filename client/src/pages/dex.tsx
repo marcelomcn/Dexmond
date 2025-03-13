@@ -17,30 +17,15 @@ const Layout = ({ children }) => (
   <div>
     <header className="fixed top-0 left-0 w-full bg-transparent z-50 border-b border-border/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center py-4">
-        <div className="flex items-center gap-4">
-          <h1 className="text-2xl font-bold">Dexmond</h1> {/* Simplified logo */}
-          <nav className="hidden md:flex gap-4">
-            <Link href="/">
-              <span className="text-white text-xs font-medium hover:text-primary">Trade</span>
-            </Link>
-            <Link href="/pools">
-              <span className="text-white text-xs font-medium hover:text-primary">Pools</span>
-            </Link>
-            <Link href="/analytics">
-              <span className="text-white text-xs font-medium hover:text-primary">Analytics</span>
-            </Link>
-            <Link href="/cross-chain">
-              <span className="text-white text-xs font-medium hover:text-primary">Cross-Chain</span>
-            </Link>
-          </nav>
+        <div className="flex items-center">
+          <h1 className="text-2xl font-bold">Dexmond</h1>
         </div>
         <WalletConnect />
       </div>
     </header>
-    <main className="mt-20">{children}</main> {/* Adjust mt-20 as needed */}
+    <main className="mt-20">{children}</main>
   </div>
 );
-
 
 
 export default function DexPage() {
@@ -72,7 +57,7 @@ export default function DexPage() {
   }
 
   return (
-    <Layout> {/* Wrap the existing content with Layout */}
+    <Layout>
       <div className="min-h-screen bg-transparent p-4 md:p-8 dex-fade-in">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col gap-6">
