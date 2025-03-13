@@ -10,6 +10,12 @@ const API_KEY = "0dcc6532-d2d0-499e-9599-6cf6d5096e0d"; // 0x API key
 const ZRX_API_URL = "https://api.0x.org";
 const BASE_URL = "https://api.0x.org";
 
+// Headers for 0x API requests
+const ZRX_HEADERS = {
+  "0x-api-key": API_KEY,
+  "0x-version": "v2" // Setting the API version as mentioned in the documentation
+};
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Token price route
   app.get('/api/price', async (req: Request, res: Response) => {

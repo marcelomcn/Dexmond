@@ -1,3 +1,13 @@
+import axios from 'axios';
+import { ethers } from 'ethers';
+
+// Import monetization utilities
+import monetization from './monetization';
+
+// Constants
+const API_BASE_URL = '/api';
+
+// Interfaces
 interface PriceData {
   price: string;
   estimatedPriceImpact: string;
@@ -36,7 +46,7 @@ interface CandlestickData {
   close: number;
 }
 
-interface Token {
+export interface TokenInfo {
   symbol: string;
   name: string;
   address: string;
@@ -45,123 +55,108 @@ interface Token {
   logoURI?: string;
 }
 
-import axios from 'axios';
+export interface QuoteParams {
+  sellToken: string;
+  buyToken: string;
+  sellAmount?: string;
+  buyAmount?: string;
+  slippagePercentage?: string;
+  takerAddress?: string;
+}
 
-// API base URL
-const API_BASE_URL = '/api';
+export interface SwapQuote {
+  price: string;
+  guaranteedPrice: string;
+  estimatedPriceImpact: string;
+  to: string;
+  data: string;
+  value: string;
+  gas: string;
+  estimatedGas: string;
+  gasPrice: string;
+  protocolFee: string;
+  minimumProtocolFee: string;
+  buyAmount: string;
+  sellAmount: string;
+  sources: Array<{ name: string; proportion: string }>;
+  buyTokenAddress: string;
+  sellTokenAddress: string;
+  estimatedGasTokenRefund: string;
+  allowanceTarget: string;
+}
 
-// Fetch token list
-export async function getTokens(chainId?: number): Promise<Token[]> {
+
+// Functions
+export async function getTokens(): Promise<TokenInfo[]> {
   try {
-    let url = `${API_BASE_URL}/tokens`;
-    if (chainId) {
-      url += `?chainId=${chainId}`;
-    }
-    const response = await axios.get(url);
+    const response = await axios.get(`${API_BASE_URL}/tokens`);
     return response.data;
   } catch (error) {
-    console.error('Error fetching token list:', error);
-    throw error;
+    console.error('Error fetching tokens:', error);
+    return [];
   }
 }
 
-// Get token price quote
-export async function getPrice(sellToken: string, buyToken: string, sellAmount: string): Promise<PriceData> {
+export async function getPrice(params: { sellToken: string; buyToken: string; sellAmount?: string }): Promise<number> {
   try {
-    const response = await axios.get(`${API_BASE_URL}/price`, {
-      params: {
-        sellToken,
-        buyToken,
-        sellAmount
-      }
-    });
-    return response.data;
+    const response = await axios.get(`${API_BASE_URL}/price`, { params });
+    return response.data.price;
   } catch (error) {
     console.error('Error fetching price:', error);
-    throw error;
+    return 0;
   }
 }
 
-// Get executable swap quote
-export async function getQuote(
-  sellToken: string,
-  buyToken: string,
-  sellAmount: string,
-  takerAddress: string
-): Promise<QuoteData> {
+export async function getQuote(params: QuoteParams): Promise<SwapQuote | null> {
   try {
-    const response = await axios.get(`${API_BASE_URL}/quote`, {
-      params: {
-        sellToken,
-        buyToken,
-        sellAmount,
-        takerAddress
-      }
-    });
+    const response = await axios.get(`${API_BASE_URL}/quote`, { params });
     return response.data;
   } catch (error) {
     console.error('Error fetching quote:', error);
-    throw error;
+    return null;
   }
 }
 
-// Get orderbook data
-export async function getOrderbook(baseToken: string, quoteToken: string): Promise<Orderbook> {
+export async function getOrderbook(params: { baseToken: string; quoteToken: string }): Promise<any> {
   try {
-    const response = await axios.get(`${API_BASE_URL}/orderbook`, {
-      params: {
-        baseToken,
-        quoteToken
-      }
-    });
+    const response = await axios.get(`${API_BASE_URL}/orderbook`, { params });
     return response.data;
   } catch (error) {
     console.error('Error fetching orderbook:', error);
-    throw error;
+    return { bids: [], asks: [] };
   }
 }
 
-// Get price history for chart
-export async function getPriceHistory(token: string, days: string = '30'): Promise<CandlestickData[]> {
+export async function getPriceHistory(params: { baseToken: string; quoteToken: string; resolution: string }): Promise<any> {
   try {
-    const response = await axios.get(`${API_BASE_URL}/price-history`, {
-      params: {
-        token,
-        days
-      }
-    });
+    const response = await axios.get(`${API_BASE_URL}/price-history`, { params });
     return response.data;
   } catch (error) {
     console.error('Error fetching price history:', error);
-    throw error;
+    return [];
   }
 }
 
-// Format token amount for display
-export function formatAmount(amount: number, decimals: number = 18, maxDecimals: number = 6): string {
-  if (!amount) return '0';
-
-  const fixed = amount.toFixed(maxDecimals);
-  return parseFloat(fixed).toString();
+export async function fetchPriceHistory(params: { baseToken: string; quoteToken: string; resolution: string; from: number; to: number }): Promise<any> {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/candlesticks`, { params });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching candlesticks:', error);
+    return [];
+  }
 }
 
-// Format USD value
-export function formatUSD(value: number): string {
+export function formatAmount(amount: string | number, decimals: number = 18): string {
+  return ethers.utils.formatUnits(amount.toString(), decimals);
+}
+
+export function formatUSD(amount: number): string {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  }).format(value);
+  }).format(amount);
 }
-
-// Export fetchPriceHistory as a wrapper around getPriceHistory
-export const fetchPriceHistory = async (tokenId: string, timeframe = '30d') => {
-  return getPriceHistory(tokenId, timeframe);
-};
-
-// Import monetization utilities
-import monetization from './monetization';
 
 // Add to window object for global access
 declare global {
@@ -169,7 +164,7 @@ declare global {
     dexmond: {
       getTokens: typeof getTokens;
       getPrice: typeof getPrice;
-      getQuote: typeof getQuote;
+      getQuote: (params: QuoteParams) => Promise<SwapQuote | null>;
       getOrderbook: typeof getOrderbook;
       getPriceHistory: typeof getPriceHistory;
       fetchPriceHistory: typeof fetchPriceHistory;
@@ -206,161 +201,14 @@ if (typeof window !== 'undefined') {
     getMonetizationConfig: monetization.getMonetizationConfig
   };
 }
-import axios from 'axios';
-import { MonetizationConfig } from './monetization';
 
-// Interfaces
-export interface TokenInfo {
-  symbol: string;
-  name: string;
-  address: string;
-  decimals: number;
-  chainId: number;
-  logoURI?: string;
-}
-
-export interface QuoteParams {
-  sellToken: string;
-  buyToken: string;
-  sellAmount?: string;
-  buyAmount?: string;
-  slippagePercentage?: string;
-  takerAddress?: string;
-}
-
-export interface SwapQuote {
-  price: string;
-  guaranteedPrice: string;
-  estimatedPriceImpact: string;
-  to: string;
-  data: string;
-  value: string;
-  gas: string;
-  estimatedGas: string;
-  gasPrice: string;
-  protocolFee: string;
-  minimumProtocolFee: string;
-  buyAmount: string;
-  sellAmount: string;
-  sources: Array<{name: string, proportion: string}>;
-  buyTokenAddress: string;
-  sellTokenAddress: string;
-  estimatedGasTokenRefund: string;
-  allowanceTarget: string;
-}
-
-// Constants
-const API_BASE_URL = '/api';
-
-/**
- * Fetch supported tokens from the 0x API
- * @param chainId Chain ID to filter tokens by
- * @returns List of supported tokens
- */
-export async function fetchTokenList(chainId?: number): Promise<TokenInfo[]> {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/tokens`, {
-      params: { chainId }
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching token list:', error);
-    return [];
-  }
-}
-
-/**
- * Get price quote for a swap
- * @param params Quote parameters
- * @returns Price quote data
- */
-export async function getPrice(params: QuoteParams): Promise<any> {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/price`, {
-      params
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching price:', error);
-    throw error;
-  }
-}
-
-/**
- * Get executable swap quote with monetization options
- * @param params Quote parameters
- * @param monetizationConfig Monetization configuration
- * @returns Executable swap quote
- */
-export async function getQuote(
-  params: QuoteParams, 
-  monetizationConfig: MonetizationConfig
-): Promise<SwapQuote> {
-  try {
-    // Add monetization parameters
-    const requestParams: Record<string, any> = {
-      ...params
-    };
-    
-    if (monetizationConfig.collectAffiliateFee && monetizationConfig.affiliateFeeRecipient) {
-      requestParams.collectAffiliateFee = 'true';
-      requestParams.affiliateFeeRecipient = monetizationConfig.affiliateFeeRecipient;
-      requestParams.affiliateFeeBps = monetizationConfig.affiliateFeeBps;
-    }
-    
-    if (monetizationConfig.collectPositiveSlippage && monetizationConfig.positiveSlippageRecipient) {
-      requestParams.positiveSlippageRecipient = monetizationConfig.positiveSlippageRecipient;
-    }
-    
-    const response = await axios.get(`${API_BASE_URL}/quote`, {
-      params: requestParams
-    });
-    
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching quote:', error);
-    throw error;
-  }
-}
-
-/**
- * Get price history for a token
- * @param token Token ID (from CoinGecko)
- * @param days Number of days of history
- * @returns Price history data
- */
-export async function getPriceHistory(token: string, days: number = 30): Promise<any[]> {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/price-history`, {
-      params: {
-        token,
-        days
-      }
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching price history:', error);
-    return [];
-  }
-}
-
-/**
- * Get orderbook data for a trading pair
- * @param baseToken Base token address
- * @param quoteToken Quote token address
- * @returns Orderbook data with bids and asks
- */
-export async function getOrderbook(baseToken: string, quoteToken: string): Promise<any> {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/orderbook`, {
-      params: {
-        baseToken,
-        quoteToken
-      }
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching orderbook:', error);
-    return { bids: [], asks: [] };
-  }
-}
+export default {
+  getTokens,
+  getPrice,
+  getQuote,
+  getOrderbook,
+  getPriceHistory,
+  fetchPriceHistory,
+  formatAmount,
+  formatUSD
+};
