@@ -206,3 +206,161 @@ if (typeof window !== 'undefined') {
     getMonetizationConfig: monetization.getMonetizationConfig
   };
 }
+import axios from 'axios';
+import { MonetizationConfig } from './monetization';
+
+// Interfaces
+export interface TokenInfo {
+  symbol: string;
+  name: string;
+  address: string;
+  decimals: number;
+  chainId: number;
+  logoURI?: string;
+}
+
+export interface QuoteParams {
+  sellToken: string;
+  buyToken: string;
+  sellAmount?: string;
+  buyAmount?: string;
+  slippagePercentage?: string;
+  takerAddress?: string;
+}
+
+export interface SwapQuote {
+  price: string;
+  guaranteedPrice: string;
+  estimatedPriceImpact: string;
+  to: string;
+  data: string;
+  value: string;
+  gas: string;
+  estimatedGas: string;
+  gasPrice: string;
+  protocolFee: string;
+  minimumProtocolFee: string;
+  buyAmount: string;
+  sellAmount: string;
+  sources: Array<{name: string, proportion: string}>;
+  buyTokenAddress: string;
+  sellTokenAddress: string;
+  estimatedGasTokenRefund: string;
+  allowanceTarget: string;
+}
+
+// Constants
+const API_BASE_URL = '/api';
+
+/**
+ * Fetch supported tokens from the 0x API
+ * @param chainId Chain ID to filter tokens by
+ * @returns List of supported tokens
+ */
+export async function fetchTokenList(chainId?: number): Promise<TokenInfo[]> {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/tokens`, {
+      params: { chainId }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching token list:', error);
+    return [];
+  }
+}
+
+/**
+ * Get price quote for a swap
+ * @param params Quote parameters
+ * @returns Price quote data
+ */
+export async function getPrice(params: QuoteParams): Promise<any> {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/price`, {
+      params
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching price:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get executable swap quote with monetization options
+ * @param params Quote parameters
+ * @param monetizationConfig Monetization configuration
+ * @returns Executable swap quote
+ */
+export async function getQuote(
+  params: QuoteParams, 
+  monetizationConfig: MonetizationConfig
+): Promise<SwapQuote> {
+  try {
+    // Add monetization parameters
+    const requestParams: Record<string, any> = {
+      ...params
+    };
+    
+    if (monetizationConfig.collectAffiliateFee && monetizationConfig.affiliateFeeRecipient) {
+      requestParams.collectAffiliateFee = 'true';
+      requestParams.affiliateFeeRecipient = monetizationConfig.affiliateFeeRecipient;
+      requestParams.affiliateFeeBps = monetizationConfig.affiliateFeeBps;
+    }
+    
+    if (monetizationConfig.collectPositiveSlippage && monetizationConfig.positiveSlippageRecipient) {
+      requestParams.positiveSlippageRecipient = monetizationConfig.positiveSlippageRecipient;
+    }
+    
+    const response = await axios.get(`${API_BASE_URL}/quote`, {
+      params: requestParams
+    });
+    
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching quote:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get price history for a token
+ * @param token Token ID (from CoinGecko)
+ * @param days Number of days of history
+ * @returns Price history data
+ */
+export async function getPriceHistory(token: string, days: number = 30): Promise<any[]> {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/price-history`, {
+      params: {
+        token,
+        days
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching price history:', error);
+    return [];
+  }
+}
+
+/**
+ * Get orderbook data for a trading pair
+ * @param baseToken Base token address
+ * @param quoteToken Quote token address
+ * @returns Orderbook data with bids and asks
+ */
+export async function getOrderbook(baseToken: string, quoteToken: string): Promise<any> {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/orderbook`, {
+      params: {
+        baseToken,
+        quoteToken
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching orderbook:', error);
+    return { bids: [], asks: [] };
+  }
+}

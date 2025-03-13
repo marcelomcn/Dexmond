@@ -45,10 +45,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         buyToken, 
         sellAmount, 
         takerAddress,
-        // Monetization parameters
+        // Monetization parameters - Affiliate fee (trading fee)
         collectAffiliateFee = false,
         affiliateFeeRecipient = "",
-        affiliateFeeBps = "0"
+        affiliateFeeBps = "0",
+        // Positive slippage collection
+        positiveSlippageRecipient = ""
       } = req.query;
       
       if (!sellToken || !buyToken || !sellAmount) {
@@ -65,20 +67,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Add affiliate fee parameters if enabled
       if (collectAffiliateFee && affiliateFeeRecipient) {
-        params.affiliateAddress = affiliateFeeRecipient;
+        // Use swapFeeRecipient, swapFeeBps, and swapFeeToken for the 0x Swap API
+        params.swapFeeRecipient = affiliateFeeRecipient;
         
-        // Check if we're using the new API format or legacy
         if (typeof affiliateFeeBps === 'string' && affiliateFeeBps !== "0") {
-          // New API format - using affiliateFeeBps
-          params.affiliateFeeBps = affiliateFeeBps;
-        } else {
-          // Legacy format - using feeRecipient and feePercentage
-          params.feeRecipient = affiliateFeeRecipient;
-          const feePercentage = parseFloat(affiliateFeeBps as string) / 100;
-          if (feePercentage > 0) {
-            params.buyTokenPercentageFee = feePercentage.toString();
-          }
+          params.swapFeeBps = affiliateFeeBps;
+          // Use sellToken as the fee token
+          params.swapFeeToken = sellToken;
         }
+      }
+      
+      // Add positive slippage recipient if provided
+      if (positiveSlippageRecipient) {
+        params.positiveSlippageRecipient = positiveSlippageRecipient;
       }
 
       const response = await axios.get(`${BASE_URL}/swap/v1/quote`, {

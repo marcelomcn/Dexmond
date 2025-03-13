@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu } from 'antd';
@@ -11,7 +10,7 @@ import {
 
 export default function Navigation() {
   const location = useLocation();
-  
+
   return (
     <Menu 
       mode="horizontal" 

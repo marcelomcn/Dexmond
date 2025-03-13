@@ -11,6 +11,7 @@ import { WagmiProvider } from 'wagmi';
 import { RainbowKitProvider, darkTheme } from '@rainbow-me/rainbowkit';
 import { wagmiConfig } from '@/lib/wagmi';
 import '@rainbow-me/rainbowkit/styles.css';
+import AdminPage from "./pages/AdminPage"; // Added import for AdminPage
 
 // Pre-load the CrossChainPage component
 const CrossChainPage = React.lazy(() => import('./pages/cross-chain'));
@@ -44,42 +45,15 @@ function App() {
               borderRadius: 'medium'
             })}
           >
-            <Router />
+            <Switch>
+              <Route path="/admin" component={AdminPage} /> {/* Added admin route */}
+              <Route component={Router} /> {/* Using Router component instead of Routes */}
+            </Switch>
             <Toaster />
           </RainbowKitProvider>
         </QueryClientProvider>
       </WagmiProvider>
     </React.StrictMode>
-  );
-}
-
-export default App;
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Layout from './components/Layout';
-import HomePage from './pages/HomePage';
-import SwapPage from './pages/SwapPage';
-import AdminPage from './pages/AdminPage';
-import TokensPage from './pages/TokensPage';
-import { WagmiConfig } from 'wagmi';
-import { createConfig } from './lib/wagmi';
-
-const wagmiConfig = createConfig();
-
-function App() {
-  return (
-    <WagmiConfig config={wagmiConfig}>
-      <Router>
-        <Routes>
-          <Route path="/" element={<Layout />}>
-            <Route index element={<HomePage />} />
-            <Route path="swap" element={<SwapPage />} />
-            <Route path="tokens" element={<TokensPage />} />
-            <Route path="admin" element={<AdminPage />} />
-          </Route>
-        </Routes>
-      </Router>
-    </WagmiConfig>
   );
 }
 
