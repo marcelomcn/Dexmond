@@ -12,6 +12,13 @@ import { RainbowKitProvider, darkTheme } from '@rainbow-me/rainbowkit';
 import { wagmiConfig } from '@/lib/wagmi';
 import '@rainbow-me/rainbowkit/styles.css';
 import AdminPage from "./pages/AdminPage"; // Added import for AdminPage
+import { Web3ReactProvider } from '@web3-react/core'; // Added import for Web3ReactProvider
+import { ethers } from 'ethers'; // Added import for ethers
+
+// Function to get library from provider for Web3ReactProvider
+function getLibrary(provider) {
+  return new ethers.providers.Web3Provider(provider);
+}
 
 // Pre-load the CrossChainPage component
 const CrossChainPage = React.lazy(() => import('./pages/cross-chain'));
@@ -39,18 +46,20 @@ function App() {
     <React.StrictMode>
       <WagmiProvider config={wagmiConfig}>
         <QueryClientProvider client={queryClient}>
-          <RainbowKitProvider 
-            theme={darkTheme({
-              accentColor: '#a855f7', 
-              borderRadius: 'medium'
-            })}
-          >
-            <Switch>
-              <Route path="/admin" component={AdminPage} /> {/* Added admin route */}
-              <Route component={Router} /> {/* Using Router component instead of Routes */}
-            </Switch>
-            <Toaster />
-          </RainbowKitProvider>
+          <Web3ReactProvider getLibrary={getLibrary}> {/* Added Web3ReactProvider */}
+            <RainbowKitProvider 
+              theme={darkTheme({
+                accentColor: '#a855f7', 
+                borderRadius: 'medium'
+              })}
+            >
+              <Switch>
+                <Route path="/admin" component={AdminPage} /> {/* Added admin route */}
+                <Route component={Router} /> {/* Using Router component instead of Routes */}
+              </Switch>
+              <Toaster />
+            </RainbowKitProvider>
+          </Web3ReactProvider> {/* Added closing tag for Web3ReactProvider */}
         </QueryClientProvider>
       </WagmiProvider>
     </React.StrictMode>
