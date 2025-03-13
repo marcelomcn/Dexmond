@@ -160,6 +160,9 @@ export const fetchPriceHistory = async (tokenId: string, timeframe = '30d') => {
   return getPriceHistory(tokenId, timeframe);
 };
 
+// Import monetization utilities
+import monetization from './monetization';
+
 // Add to window object for global access
 declare global {
   interface Window {
@@ -172,20 +175,34 @@ declare global {
       fetchPriceHistory: typeof fetchPriceHistory;
       formatAmount: typeof formatAmount;
       formatUSD: typeof formatUSD;
+      // Add monetization functions
+      enableMonetization: (enabled: boolean) => void;
+      setAffiliateAddress: (address: string) => void;
+      setAffiliateFeeBps: (bps: string) => void;
+      getMonetizationConfig: typeof monetization.getMonetizationConfig;
     };
   }
 }
 
-// Expose the API to the window object
+// Expose the API to the window object with monetization features
 if (typeof window !== 'undefined') {
   window.dexmond = {
     getTokens,
     getPrice,
-    getQuote,
+    getQuote: async (params) => {
+      // Add monetization parameters to quote requests
+      const enhancedParams = monetization.addMonetizationParams(params);
+      return getQuote(enhancedParams);
+    },
     getOrderbook,
     getPriceHistory,
     fetchPriceHistory,
     formatAmount,
-    formatUSD
+    formatUSD,
+    // Add monetization controls
+    enableMonetization: (enabled) => monetization.setMonetizationEnabled(enabled),
+    setAffiliateAddress: (address) => monetization.setAffiliateAddress(address),
+    setAffiliateFeeBps: (bps) => monetization.setAffiliateFeeBps(bps),
+    getMonetizationConfig: monetization.getMonetizationConfig
   };
 }

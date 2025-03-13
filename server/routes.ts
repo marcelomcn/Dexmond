@@ -37,22 +37,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Quote route - get an executable quote
+  // Quote route - get an executable quote with monetization options
   app.get('/api/quote', async (req: Request, res: Response) => {
     try {
-      const { sellToken, buyToken, sellAmount, takerAddress } = req.query;
+      const { 
+        sellToken, 
+        buyToken, 
+        sellAmount, 
+        takerAddress,
+        // Monetization parameters
+        collectAffiliateFee = false,
+        affiliateFeeRecipient = "",
+        affiliateFeeBps = "0"
+      } = req.query;
       
       if (!sellToken || !buyToken || !sellAmount) {
         return res.status(400).json({ error: 'Missing required parameters' });
       }
 
+      // Base parameters
+      const params: any = {
+        sellToken,
+        buyToken,
+        sellAmount,
+        takerAddress
+      };
+
+      // Add affiliate fee parameters if enabled
+      if (collectAffiliateFee && affiliateFeeRecipient) {
+        params.affiliateAddress = affiliateFeeRecipient;
+        
+        // Check if we're using the new API format or legacy
+        if (typeof affiliateFeeBps === 'string' && affiliateFeeBps !== "0") {
+          // New API format - using affiliateFeeBps
+          params.affiliateFeeBps = affiliateFeeBps;
+        } else {
+          // Legacy format - using feeRecipient and feePercentage
+          params.feeRecipient = affiliateFeeRecipient;
+          const feePercentage = parseFloat(affiliateFeeBps as string) / 100;
+          if (feePercentage > 0) {
+            params.buyTokenPercentageFee = feePercentage.toString();
+          }
+        }
+      }
+
       const response = await axios.get(`${BASE_URL}/swap/v1/quote`, {
-        params: {
-          sellToken,
-          buyToken,
-          sellAmount,
-          takerAddress
-        },
+        params,
         headers: {
           '0x-api-key': API_KEY
         }
