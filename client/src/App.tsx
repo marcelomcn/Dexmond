@@ -1,8 +1,7 @@
-import React from 'react';
 import { Route, Switch } from 'wouter';
 import { 
   RainbowKitProvider,
-  lightTheme
+  darkTheme,
 } from '@rainbow-me/rainbowkit';
 import { WagmiConfig } from 'wagmi';
 import { wagmiConfig, chains } from '@/lib/wagmi';
@@ -20,11 +19,12 @@ function App() {
     <WagmiConfig config={wagmiConfig}>
       <RainbowKitProvider 
         chains={chains}
-        theme={lightTheme({
+        theme={darkTheme({
           accentColor: '#0097FB',
           accentColorForeground: 'white',
           borderRadius: 'medium',
         })}
+        coolMode
       >
         <div className="min-h-screen bg-background">
           <Navigation />
