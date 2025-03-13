@@ -1,31 +1,17 @@
-
 import { getDefaultWallets } from '@rainbow-me/rainbowkit';
-import { configureChains, createConfig } from 'wagmi';
 import { mainnet, polygon, optimism, arbitrum, base } from 'wagmi/chains';
-import { publicProvider } from 'wagmi/providers/public';
-
-// Configure chains & providers
-export const { chains, publicClient } = configureChains(
-  [mainnet, polygon, optimism, arbitrum, base],
-  [publicProvider()]
-);
+import { config } from '@/lib/wagmi';
 
 // Configure wallet connectors
 export const { connectors } = getDefaultWallets({
   appName: 'Dexmond',
-  projectId: 'YOUR_PROJECT_ID', // Replace with actual project ID if available
-  chains
+  projectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || '',
 });
 
-// Create wagmi config
-export const wagmiConfig = createConfig({
-  autoConnect: true,
-  connectors,
-  publicClient
-});
+export const chains = [mainnet, polygon, optimism, arbitrum, base];
 
 export default {
-  chains,
   connectors,
-  wagmiConfig
+  chains,
+  config
 };

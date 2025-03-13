@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -15,10 +15,14 @@ const tokenToCoinGeckoId: Record<string, string> = {
   'AAVE': 'aave',
 };
 
-export function SingleTokenChart() {
-  const [selectedToken, setSelectedToken] = useState<string>("BTC");
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [priceData, setPriceData] = useState<any[]>([]);
+interface SingleTokenChartProps {
+  token: string;
+  onTokenChange?: (token: string) => void;
+}
+
+export function SingleTokenChart({ token, onTokenChange }: SingleTokenChartProps) {
+  const [isLoading, setIsLoading] = React.useState<boolean>(true);
+  const [priceData, setPriceData] = React.useState<any[]>([]);
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<any>(null);
   const seriesRef = useRef<any>(null);
@@ -27,7 +31,6 @@ export function SingleTokenChart() {
     let isMounted = true;
 
     const loadChartLibrary = async () => {
-      // Check if the library is loaded
       if (typeof window.LightweightCharts === 'undefined') {
         console.log("Chart library not loaded");
         return false;
@@ -53,9 +56,8 @@ export function SingleTokenChart() {
 
         const data = await response.json();
 
-        // Format data for the chart
         return data.prices.map((price: [number, number]) => ({
-          time: price[0] / 1000, // Convert milliseconds to seconds for the chart
+          time: price[0] / 1000,
           value: price[1],
         }));
       } catch (error) {
@@ -70,14 +72,12 @@ export function SingleTokenChart() {
       const hasLibrary = await loadChartLibrary();
       if (!hasLibrary) return;
 
-      // Clear previous chart
       if (chartRef.current) {
         chartRef.current.remove();
         chartRef.current = null;
         seriesRef.current = null;
       }
 
-      // Create chart instance using the global LightweightCharts object
       const { createChart } = window.LightweightCharts;
       chartRef.current = createChart(chartContainerRef.current, {
         width: chartContainerRef.current.clientWidth,
@@ -96,7 +96,6 @@ export function SingleTokenChart() {
         },
       });
 
-      // Add area series - Added error handling
       try {
         seriesRef.current = chartRef.current.addAreaSeries({
           topColor: 'rgba(76, 175, 80, 0.56)',
@@ -108,14 +107,11 @@ export function SingleTokenChart() {
         console.error("Error adding area series:", error);
       }
 
-
-      // Set price data
       if (priceData.length > 0 && seriesRef.current) {
         seriesRef.current.setData(priceData);
         chartRef.current.timeScale().fitContent();
       }
 
-      // Handle resize
       const resizeObserver = new ResizeObserver(entries => {
         if (chartRef.current && entries.length > 0) {
           const { width, height } = entries[0].contentRect;
@@ -134,7 +130,7 @@ export function SingleTokenChart() {
 
     const updateChartData = async () => {
       setIsLoading(true);
-      const data = await fetchPriceData(selectedToken);
+      const data = await fetchPriceData(token);
 
       if (isMounted) {
         setPriceData(data);
@@ -154,17 +150,19 @@ export function SingleTokenChart() {
         chartRef.current.remove();
       }
     };
-  }, [selectedToken]);
+  }, [token]);
 
   const handleTokenChange = (value: string) => {
-    setSelectedToken(value);
+    if (onTokenChange) {
+      onTokenChange(value);
+    }
   };
 
   return (
     <Card className="w-full overflow-hidden">
       <div className="p-4 border-b border-border flex justify-between items-center">
         <h3 className="text-lg font-semibold">Price Chart</h3>
-        <Select value={selectedToken} onValueChange={handleTokenChange}>
+        <Select value={token} onValueChange={handleTokenChange}>
           <SelectTrigger className="w-[180px]">
             <SelectValue />
           </SelectTrigger>

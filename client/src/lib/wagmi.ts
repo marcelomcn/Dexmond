@@ -1,5 +1,5 @@
 import { getDefaultConfig } from '@rainbow-me/rainbowkit';
-import { http } from 'viem';
+import { http, createConfig } from 'viem';
 import {
   mainnet,
   polygon,
@@ -10,7 +10,7 @@ if (!import.meta.env.VITE_WALLETCONNECT_PROJECT_ID) {
   throw new Error('WalletConnect Project ID is required. Please set VITE_WALLETCONNECT_PROJECT_ID in your environment.');
 }
 
-export const wagmiConfig = getDefaultConfig({
+export const config = getDefaultConfig({
   appName: 'Dexmond',
   projectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID,
   chains: [mainnet, polygon, bsc],
@@ -21,4 +21,5 @@ export const wagmiConfig = getDefaultConfig({
   },
 });
 
-export const chains = wagmiConfig.chains;
+export const wagmiConfig = createConfig(config);
+export const chains = config.chains;

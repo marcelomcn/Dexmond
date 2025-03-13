@@ -1,14 +1,11 @@
-
 import React from 'react';
 import { Route, Switch } from 'wouter';
 import { 
-  getDefaultWallets,
   RainbowKitProvider,
   lightTheme
 } from '@rainbow-me/rainbowkit';
-import { WagmiConfig, createConfig, configureChains } from 'wagmi';
-import { mainnet, polygon, optimism, arbitrum, base, zora } from 'wagmi/chains';
-import { publicProvider } from 'wagmi/providers/public';
+import { WagmiConfig } from 'wagmi';
+import { wagmiConfig, chains } from '@/lib/wagmi';
 import '@rainbow-me/rainbowkit/styles.css';
 
 // Import your pages
@@ -17,26 +14,6 @@ import SwapPage from '@/pages/SwapPage';
 import AdminPage from '@/pages/AdminPage';
 import Navigation from '@/components/Navigation';
 import { Toaster } from '@/components/ui/toaster';
-
-// Configure chains & providers
-const { chains, publicClient } = configureChains(
-  [mainnet, polygon, optimism, arbitrum, base, zora],
-  [publicProvider()]
-);
-
-// Set up connectors
-const { connectors } = getDefaultWallets({
-  appName: 'Dexmond',
-  projectId: 'YOUR_PROJECT_ID', // You can replace this with actual project ID
-  chains
-});
-
-// Create Wagmi config
-const wagmiConfig = createConfig({
-  autoConnect: true,
-  connectors,
-  publicClient
-});
 
 function App() {
   return (

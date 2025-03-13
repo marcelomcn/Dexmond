@@ -2,7 +2,7 @@ import React from 'react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useAccount } from 'wagmi';
 
-const WalletConnect: React.FC = () => {
+export const WalletConnect: React.FC = () => {
   const { isConnected } = useAccount();
 
   return (

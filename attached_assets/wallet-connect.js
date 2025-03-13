@@ -39,7 +39,7 @@ function createSafeProvider(ethereum) {
   // Basic provider that wraps ethereum provider
   const safeProvider = {
     _ethereum: ethereum,
-    
+
     // Basic send method
     send: async function(method, params) {
       try {
@@ -48,7 +48,7 @@ function createSafeProvider(ethereum) {
         throw error;
       }
     },
-    
+
     // Get accounts
     listAccounts: async function() {
       try {
@@ -58,7 +58,7 @@ function createSafeProvider(ethereum) {
         return [];
       }
     },
-    
+
     // Get network
     getNetwork: async function() {
       try {
@@ -70,7 +70,7 @@ function createSafeProvider(ethereum) {
         return { chainId: 0, name: 'Unknown' };
       }
     },
-    
+
     // Get balance
     getBalance: async function(address) {
       try {
@@ -84,34 +84,34 @@ function createSafeProvider(ethereum) {
         return BigInt(0);
       }
     },
-    
+
     // Get signer
     getSigner: function() {
       return {
         _provider: this,
-        
+
         // Get address of signer
         getAddress: async function() {
           const accounts = await ethereum.request({ method: 'eth_accounts' });
           return accounts[0];
         },
-        
+
         // Sign message
         signMessage: async function(message) {
           const accounts = await ethereum.request({ method: 'eth_accounts' });
           const address = accounts[0];
-          
+
           return await ethereum.request({
             method: 'personal_sign',
             params: [message, address]
           });
         },
-        
+
         // Send transaction
         sendTransaction: async function(txParams) {
           const accounts = await ethereum.request({ method: 'eth_accounts' });
           const from = accounts[0];
-          
+
           const tx = {
             from,
             to: txParams.to,
@@ -119,7 +119,7 @@ function createSafeProvider(ethereum) {
             data: txParams.data || '0x',
             gas: txParams.gasLimit ? '0x' + txParams.gasLimit.toString(16) : undefined
           };
-          
+
           return await ethereum.request({
             method: 'eth_sendTransaction',
             params: [tx]
@@ -128,14 +128,14 @@ function createSafeProvider(ethereum) {
       };
     }
   };
-  
+
   return safeProvider;
 }
 
 // Wait for the DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', function() {
   initWallet();
-  
+
   // Add direct click handler as a fallback
   const connectButton = document.getElementById('walletConnect');
   if (connectButton) {
@@ -166,17 +166,17 @@ function debugWalletDetection() {
 // Wait for ethereum to be injected if needed
 function waitForEthereum(callback, maxAttempts = 15) {
   let attempts = 0;
-  
+
   const checkForEthereum = () => {
     attempts++;
     console.log(`Checking for ethereum (attempt ${attempts})`);
-    
+
     if (window.ethereum) {
       console.log("Found ethereum provider:", window.ethereum);
       callback();
       return;
     }
-    
+
     // Check for alternate provider locations (some browser extensions use different patterns)
     if (window.web3 && window.web3.currentProvider) {
       console.log("Found legacy web3 provider");
@@ -184,7 +184,7 @@ function waitForEthereum(callback, maxAttempts = 15) {
       callback();
       return;
     }
-    
+
     if (attempts >= maxAttempts) {
       const connectButton = document.getElementById('walletConnect');
       console.error("Max attempts reached. MetaMask not detected.");
@@ -194,12 +194,12 @@ function waitForEthereum(callback, maxAttempts = 15) {
       }
       return;
     }
-    
+
     // Increase timeout for later attempts
     const timeout = attempts < 5 ? 200 : 400;
     setTimeout(checkForEthereum, timeout);
   };
-  
+
   checkForEthereum();
 }
 
@@ -208,16 +208,16 @@ function initWallet() {
   // Get references to DOM elements
   const connectButton = document.getElementById('walletConnect');
   const walletStatus = document.getElementById('walletStatus');
-  
+
   // If DOM elements aren't found, log error and exit
   if (!connectButton || !walletStatus) {
     console.error("Required DOM elements not found. Make sure 'walletConnect' and 'walletStatus' elements exist.");
     return;
   }
-  
+
   // Run debug
   debugWalletDetection();
-  
+
   // Initialize with ethers only if it's available
   waitForEthereum(() => {
     if (!checkEthersAvailability()) {
@@ -225,17 +225,17 @@ function initWallet() {
       connectButton.disabled = true;
       return;
     }
-    
+
     try {
       // Use our custom safe provider instead of ethers.providers.Web3Provider
       // This avoids potential CSP issues with ethers internal use of eval
       provider = createSafeProvider(window.ethereum);
-      
+
       // Set up event listeners for wallet changes
       window.ethereum.on('accountsChanged', handleAccountsChanged);
       window.ethereum.on('chainChanged', handleChainChanged);
       window.ethereum.on('disconnect', handleDisconnect);
-      
+
       // Check if already connected
       provider.listAccounts().then(accounts => {
         if (accounts.length > 0) {
@@ -249,7 +249,7 @@ function initWallet() {
         console.error("Error checking accounts:", error);
         connectButton.textContent = 'Connection Error';
       });
-      
+
       // Set up connect button
       connectButton.addEventListener('click', connectWallet);
     } catch (error) {
@@ -263,28 +263,28 @@ function initWallet() {
 async function connectWallet() {
   const connectButton = document.getElementById('walletConnect');
   const walletStatus = document.getElementById('walletStatus');
-  
+
   if (!window.ethereum) {
     console.error("No ethereum provider available");
     connectButton.textContent = 'No Wallet Provider';
     return;
   }
-  
+
   try {
     // Show connecting state
     connectButton.textContent = 'Connecting...';
-    
+
     // Use direct ethereum request for better compatibility
-    const accounts = await window.ethereum.request({ 
-      method: 'eth_requestAccounts' 
+    const accounts = await window.ethereum.request({
+      method: 'eth_requestAccounts'
     });
-    
+
     if (accounts.length > 0) {
       // Initialize the provider after successful connection if needed
       if (!provider) {
         provider = createSafeProvider(window.ethereum);
       }
-      
+
       await handleAccountsChanged(accounts);
       return accounts[0];
     } else {
@@ -314,12 +314,12 @@ function truncateAddress(address) {
 async function handleAccountsChanged(accounts) {
   const connectButton = document.getElementById('walletConnect');
   const walletStatus = document.getElementById('walletStatus');
-  
+
   if (!connectButton || !walletStatus) {
     console.error("Required DOM elements not found");
     return;
   }
-  
+
   if (!accounts || accounts.length === 0) {
     // User disconnected their wallet
     walletConnected = false;
@@ -332,38 +332,38 @@ async function handleAccountsChanged(accounts) {
     // User connected or switched accounts
     walletConnected = true;
     currentAccount = accounts[0];
-    
+
     // Get the chain ID
     try {
       const network = await provider.getNetwork();
       chainId = network.chainId;
       console.log('Connected to chain:', chainId);
-      
+
       // Check if we're on a supported network
       if (SUPPORTED_NETWORKS[chainId]) {
         console.log('Connected to supported network:', SUPPORTED_NETWORKS[chainId].name);
       } else {
         console.warn('Connected to unsupported network. ChainId:', chainId);
       }
-      
+
       // Get signer
       signer = provider.getSigner();
-      
+
       // Update UI - use safe truncation
       const displayAddress = truncateAddress(currentAccount);
       walletStatus.textContent = displayAddress;
       connectButton.textContent = 'Connected ';
       connectButton.appendChild(walletStatus);
-      
+
       console.log('Connected to wallet account:', currentAccount);
     } catch (error) {
       console.error('Error getting network details:', error);
     }
   }
-  
+
   // Dispatch custom event for the rest of the app
-  const walletChangedEvent = new CustomEvent('walletChanged', { 
-    detail: { 
+  const walletChangedEvent = new CustomEvent('walletChanged', {
+    detail: {
       connected: walletConnected,
       account: currentAccount,
       chainId: chainId
@@ -375,7 +375,7 @@ async function handleAccountsChanged(accounts) {
 // Handle chain changes
 async function handleChainChanged(chainIdHex) {
   console.log('Chain changed to:', chainIdHex);
-  
+
   // Force page refresh as recommended by MetaMask
   window.location.reload();
 }
@@ -383,21 +383,21 @@ async function handleChainChanged(chainIdHex) {
 // Handle disconnect
 function handleDisconnect(error) {
   console.log('Wallet disconnected:', error);
-  
+
   // Reset state
   walletConnected = false;
   currentAccount = null;
   signer = null;
-  
+
   // Update UI
   const connectButton = document.getElementById('walletConnect');
   const walletStatus = document.getElementById('walletStatus');
-  
+
   if (connectButton && walletStatus) {
     walletStatus.textContent = '';
     connectButton.textContent = 'Connect Wallet';
   }
-  
+
   // Dispatch custom event
   const walletChangedEvent = new CustomEvent('walletChanged', {
     detail: {
@@ -415,7 +415,7 @@ async function switchNetwork(targetChainId) {
     console.error('No provider or signer available');
     return false;
   }
-  
+
   // Check if we're already on the target network
   try {
     const currentNetwork = await provider.getNetwork();
@@ -425,14 +425,14 @@ async function switchNetwork(targetChainId) {
   } catch (error) {
     console.error('Error checking current network:', error);
   }
-  
+
   // Get the network details
   const network = SUPPORTED_NETWORKS[targetChainId];
   if (!network) {
     console.error('Target network not supported:', targetChainId);
     return false;
   }
-  
+
   try {
     // Try to switch to the network
     await window.ethereum.request({
@@ -442,7 +442,7 @@ async function switchNetwork(targetChainId) {
     return true;
   } catch (switchError) {
     console.error('Error switching network:', switchError);
-    
+
     // This error code indicates that the chain has not been added to MetaMask
     if (switchError.code === 4902) {
       try {
@@ -463,4 +463,11 @@ async function switchNetwork(targetChainId) {
           ],
         });
         return true;
-      } catch (addError
+      } catch (addError) {
+        console.error('Error adding network:', addError);
+        return false;
+      }
+    }
+    return false;
+  }
+}
