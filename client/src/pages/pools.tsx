@@ -12,45 +12,36 @@ import { Layout } from "@/components/layout/Layout";
 export default function PoolsPage() {
   return (
     <Layout>
-      <div className="flex flex-col gap-6">
+      <div className="container mx-auto py-8">
+        <div className="flex flex-col gap-6">
           <MarketStats />
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            <div className="lg:col-span-12">
-              <Card className="p-6">
-                <Tabs defaultValue="pools" onValueChange={(value) => {
-                  // Safely handle tab changes
-                  try {
-                    console.log(`Tab changed to: ${value}`);
-                  } catch (error) {
-                    console.error("Error changing tabs:", error);
-                  }
-                }}>
-                  <TabsList className="w-full">
-                    <TabsTrigger value="pools" className="flex-1" onClick={(e) => e.stopPropagation()}>Liquidity Pools</TabsTrigger>
-                    <TabsTrigger value="farming" className="flex-1" onClick={(e) => e.stopPropagation()}>Yield Farming</TabsTrigger>
-                    <TabsTrigger value="lending" className="flex-1" onClick={(e) => e.stopPropagation()}>Lending</TabsTrigger>
-                    <TabsTrigger value="bridge" className="flex-1" onClick={(e) => e.stopPropagation()}>Bridge</TabsTrigger>
-                    <TabsTrigger value="flash" className="flex-1" onClick={(e) => e.stopPropagation()}>Flash Loans</TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="pools">
-                    <LiquidityPools />
-                  </TabsContent>
-                  <TabsContent value="farming">
-                    <YieldFarming />
-                  </TabsContent>
-                  <TabsContent value="lending">
-                    <LendingMarket />
-                  </TabsContent>
-                  <TabsContent value="bridge">
-                    <CrossChainBridge />
-                  </TabsContent>
-                  <TabsContent value="flash">
-                    <FlashLoan />
-                  </TabsContent>
-                </Tabs>
-              </Card>
-            </div>
-          </div>
+          <Card className="p-6">
+            <Tabs defaultValue="pools">
+              <TabsList className="w-full">
+                <TabsTrigger value="pools" className="flex-1">Liquidity Pools</TabsTrigger>
+                <TabsTrigger value="farming" className="flex-1">Yield Farming</TabsTrigger>
+                <TabsTrigger value="lending" className="flex-1">Lending</TabsTrigger>
+                <TabsTrigger value="bridge" className="flex-1">Bridge</TabsTrigger>
+                <TabsTrigger value="flash" className="flex-1">Flash Loans</TabsTrigger>
+              </TabsList>
+              <TabsContent value="pools">
+                <LiquidityPools />
+              </TabsContent>
+              <TabsContent value="farming">
+                <YieldFarming />
+              </TabsContent>
+              <TabsContent value="lending">
+                <LendingMarket />
+              </TabsContent>
+              <TabsContent value="bridge">
+                <CrossChainBridge />
+              </TabsContent>
+              <TabsContent value="flash">
+                <FlashLoan />
+              </TabsContent>
+            </Tabs>
+          </Card>
+        </div>
       </div>
     </Layout>
   );

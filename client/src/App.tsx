@@ -14,6 +14,7 @@ import SwapPage from '@/pages/SwapPage';
 import AdminPage from '@/pages/AdminPage';
 import PoolsPage from '@/pages/pools';
 import CrossChainPage from '@/pages/cross-chain';
+import AnalyticsPage from '@/pages/analytics'; // Added import
 import Navigation from '@/components/Navigation';
 import { Toaster } from '@/components/ui/toaster';
 
@@ -40,6 +41,7 @@ function App() {
                 <Route path="/" component={Dashboard} />
                 <Route path="/swap" component={SwapPage} />
                 <Route path="/pools" component={PoolsPage} />
+                <Route path="/analytics" component={AnalyticsPage} /> {/* Added route */}
                 <Route path="/cross-chain" component={CrossChainPage} />
                 <Route path="/admin" component={AdminPage} />
               </Switch>
