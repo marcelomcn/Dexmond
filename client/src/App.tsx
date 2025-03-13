@@ -9,16 +9,11 @@ import PoolsPage from "@/pages/pools";
 import AnalyticsPage from "@/pages/analytics";
 import { WagmiProvider } from 'wagmi';
 import { RainbowKitProvider, darkTheme } from '@rainbow-me/rainbowkit';
-import { wagmiConfig } from '@/lib/wagmi';
+import { config } from '@/lib/connectors'; // Updated import
 import '@rainbow-me/rainbowkit/styles.css';
-import AdminPage from "./pages/AdminPage"; // Added import for AdminPage
-import { Web3ReactProvider } from '@web3-react/core'; // Added import for Web3ReactProvider
-import { ethers } from 'ethers'; // Added import for ethers
+import AdminPage from "./pages/AdminPage";
+import { ethers } from 'ethers';
 
-// Function to get library from provider for Web3ReactProvider
-function getLibrary(provider) {
-  return new ethers.providers.Web3Provider(provider);
-}
 
 // Pre-load the CrossChainPage component
 const CrossChainPage = React.lazy(() => import('./pages/cross-chain'));
@@ -44,23 +39,21 @@ function Router() {
 function App() {
   return (
     <React.StrictMode>
-      <WagmiProvider config={wagmiConfig}>
-        <QueryClientProvider client={queryClient}>
-          <Web3ReactProvider getLibrary={getLibrary}> {/* Added Web3ReactProvider */}
-            <RainbowKitProvider 
-              theme={darkTheme({
-                accentColor: '#a855f7', 
-                borderRadius: 'medium'
-              })}
-            >
-              <Switch>
-                <Route path="/admin" component={AdminPage} /> {/* Added admin route */}
-                <Route component={Router} /> {/* Using Router component instead of Routes */}
-              </Switch>
-              <Toaster />
-            </RainbowKitProvider>
-          </Web3ReactProvider> {/* Added closing tag for Web3ReactProvider */}
-        </QueryClientProvider>
+      <WagmiProvider config={config}>
+        <RainbowKitProvider 
+          theme={darkTheme({
+            accentColor: '#a855f7', 
+            borderRadius: 'medium'
+          })}
+        >
+          <QueryClientProvider client={queryClient}>
+            <Switch>
+              <Route path="/admin" component={AdminPage} />
+              <Route component={Router} />
+            </Switch>
+            <Toaster />
+          </QueryClientProvider>
+        </RainbowKitProvider>
       </WagmiProvider>
     </React.StrictMode>
   );
