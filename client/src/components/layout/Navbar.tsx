@@ -1,6 +1,5 @@
 import React from "react";
 import { Link } from "wouter";
-import { WalletConnect } from "@/components/dex/WalletConnect";
 
 export const Navbar: React.FC = () => {
   const [currentPath, setCurrentPath] = React.useState(window.location.pathname);
@@ -43,7 +42,6 @@ export const Navbar: React.FC = () => {
           </Link>
         </div>
       </div>
-      <WalletConnect />
     </header>
   );
 };
