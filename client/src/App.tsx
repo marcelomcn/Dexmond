@@ -12,6 +12,8 @@ import '@rainbow-me/rainbowkit/styles.css';
 import Dashboard from '@/pages/Dashboard';
 import SwapPage from '@/pages/SwapPage';
 import AdminPage from '@/pages/AdminPage';
+import PoolsPage from '@/pages/pools';
+import CrossChainPage from '@/pages/cross-chain';
 import Navigation from '@/components/Navigation';
 import { Toaster } from '@/components/ui/toaster';
 
@@ -37,6 +39,8 @@ function App() {
               <Switch>
                 <Route path="/" component={Dashboard} />
                 <Route path="/swap" component={SwapPage} />
+                <Route path="/pools" component={PoolsPage} />
+                <Route path="/cross-chain" component={CrossChainPage} />
                 <Route path="/admin" component={AdminPage} />
               </Switch>
             </main>

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useLocation } from "wouter";
 import { TokenSwap } from "@/components/dex/TokenSwap";
 import { OrderBook } from "@/components/dex/OrderBook";
 import { PriceChart } from "@/components/dex/PriceChart";
@@ -8,7 +9,6 @@ import { AdvancedTrading } from "@/components/dex/AdvancedTrading";
 import { Portfolio } from "@/components/dex/Portfolio";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Link } from "wouter";
 import { SingleTokenChart } from "@/components/dex/SingleTokenChart";
 
 // Simple Layout component
@@ -21,7 +21,7 @@ const Layout = ({ children }) => (
 export default function DexPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedToken, setSelectedToken] = useState("BTC");
-  const availableTokens = ["BTC", "ETH", "DAI", "USDC", "USDT"];
+  const [, navigate] = useLocation();
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -29,6 +29,24 @@ export default function DexPage() {
     }, 2000);
     return () => clearTimeout(timer);
   }, []);
+
+  const handleTabChange = (value: string) => {
+    try {
+      switch(value) {
+        case "pools":
+          navigate("/pools");
+          break;
+        case "analytics":
+          navigate("/analytics");
+          break;
+        case "cross-chain":
+          navigate("/cross-chain");
+          break;
+      }
+    } catch (error) {
+      console.error("Error changing tabs:", error);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -49,22 +67,15 @@ export default function DexPage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               <div className="lg:col-span-4 space-y-6">
                 <Card className="p-6 bg-opacity-20 backdrop-blur-lg">
-                  <Tabs defaultValue="swap" onValueChange={(value) => {
-                    try {
-                      console.log(`Tab changed to: ${value}`);
-                    } catch (error) {
-                      console.error("Error changing tabs:", error);
-                    }
-                  }}>
+                  <Tabs defaultValue="swap" onValueChange={handleTabChange}>
                     <TabsList className="w-full">
-                      <TabsTrigger value="swap" className="flex-1" onClick={(e) => e.stopPropagation()}>Quick Swap</TabsTrigger>
-                      <TabsTrigger value="advanced" className="flex-1" onClick={(e) => e.stopPropagation()}>Advanced</TabsTrigger>
+                      <TabsTrigger value="swap" className="flex-1">Quick Swap</TabsTrigger>
+                      <TabsTrigger value="pools" className="flex-1">Pools</TabsTrigger>
+                      <TabsTrigger value="analytics" className="flex-1">Analytics</TabsTrigger>
+                      <TabsTrigger value="cross-chain" className="flex-1">Cross-Chain</TabsTrigger>
                     </TabsList>
                     <TabsContent value="swap">
                       <TokenSwap />
-                    </TabsContent>
-                    <TabsContent value="advanced">
-                      <AdvancedTrading />
                     </TabsContent>
                   </Tabs>
                 </Card>
